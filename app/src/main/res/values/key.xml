@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_pref_menu_login_user">pref_menu_user</string>
+    <string name="key_pref_menu_info">pref_menu_info</string>
+    <string name="key_pref_menu_oper">pref_menu_oper</string>
+    <string name="key_pref_menu_addcard">pref_menu_addcard</string>
+    <string name="key_pref_menu_recordcard">pref_menu_recordcard</string>
+    <string name="key_pref_menu_setting">pref_menu_setting</string>
+    <string name="key_pref_menu_sysinfo">pref_menu_sysinfo</string>
+    <string name="key_pref_menu_readcard">pref_menu_readcard</string>
+
+
+    <string name="key_pref_title_card_info">pref_title_card_info</string>
+    <string name="key_pref_card_sjbh">pref_card_sjbh</string>
+    <string name="key_pref_card_card">pref_card_card</string>
+    <string name="key_pref_card_gcmc">pref_card_gcmc</string>
+    <string name="key_pref_card_wtdw">pref_card_wtdw</string>
+    <string name="key_pref_card_sgdw">pref_card_sgdw</string>
+    <string name="key_pref_card_gjbw">pref_card_gjbw</string>
+    <string name="key_pref_card_jzdw">pref_card_jzdw</string>
+    <string name="key_pref_card_jzr">pref_card_jzr</string>
+    <string name="key_pref_card_jzbh">pref_card_jzbh</string>
+    <string name="key_pref_card_bzdw">pref_card_bzdw</string>
+    <string name="key_pref_card_phbbh">pref_card_phbbh</string>
+    <string name="key_pref_card_yhfs">pref_card_yhfs</string>
+    <string name="key_pref_card_qddj">pref_card_qddj</string>
+    <string name="key_pref_card_sclsh">pref_card_sclsh</string>
+    <string name="key_pref_card_yplx">pref_card_yplx</string>
+    <string name="key_pref_card_zzrq">pref_card_zzrq</string>
+    <string name="key_pref_card_jcjg">pref_card_jcjg</string>
+    <string name="key_pref_card_wtbh">pref_card_wtbh</string>
+    <string name="key_pref_card_ypbh">pref_card_ypbh</string>
+    <string name="key_pref_card_zhz">pref_card_zhz</string>
+    <string name="key_pref_card_kyqd">pref_card_kyqd</string>
+    <string name="key_pref_card_sysj">pref_card_sysj</string>
+
+    <string name="key_pref_card_number1">pref_card_number1</string>
+    <string name="key_pref_card_number2">pref_card_number2</string>
+    <string name="key_pref_card_number3">pref_card_number3</string>
+
+</resources>

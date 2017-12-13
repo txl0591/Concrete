@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="CardInfo"
+        android:title="@string/pref_title_card_info">
+        <PreferenceScreen
+            android:key="@string/key_pref_card_sjbh"
+            android:title="@string/pref_card_sjbh"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_card"
+            android:title="@string/pref_card_card"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_gcmc"
+            android:title="@string/pref_card_gcmc"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_wtdw"
+            android:title="@string/pref_card_wtdw"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_sgdw"
+            android:title="@string/pref_card_sgdw"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_gjbw"
+            android:title="@string/pref_card_gjbw"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_jzdw"
+            android:title="@string/pref_card_jzdw"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_jzdw"
+            android:title="@string/pref_card_jzdw"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_jzr"
+            android:title="@string/pref_card_jzr"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_jzbh"
+            android:title="@string/pref_card_jzbh"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_bzdw"
+            android:title="@string/pref_card_bzdw"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_phbbh"
+            android:title="@string/pref_card_phbbh"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_yhfs"
+            android:title="@string/pref_card_yhfs"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_qddj"
+            android:title="@string/pref_card_qddj"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_sclsh"
+            android:title="@string/pref_card_sclsh"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_yplx"
+            android:title="@string/pref_card_yplx"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_zzrq"
+            android:title="@string/pref_card_zzrq"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_jcjg"
+            android:title="@string/pref_card_jcjg"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_wtbh"
+            android:title="@string/pref_card_wtbh"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_ypbh"
+            android:title="@string/pref_card_ypbh"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_zhz"
+            android:title="@string/pref_card_zhz"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_kyqd"
+            android:title="@string/pref_card_kyqd"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_sysj"
+            android:title="@string/pref_card_sysj"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

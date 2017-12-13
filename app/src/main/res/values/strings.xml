@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">混凝土系统</string>
+    <string name="pref_menu_user">用户信息</string>
+    <string name="pref_menu_oper">基本操作</string>
+    <string name="pref_menu_readcard">读卡</string>
+    <string name="pref_menu_addcard">新增</string>
+    <string name="pref_menu_recordcard">历史记录</string>
+    <string name="pref_menu_setting">设置</string>
+
+    <!-- Read Card -->
+    <string name="pref_title_card_info">卡片信息</string>
+    <string name="pref_card_sjbh">试件编号</string>
+    <string name="pref_card_card">卡    号</string>
+    <string name="pref_card_gcmc">工程名称</string>
+    <string name="pref_card_wtdw">委托单位</string>
+    <string name="pref_card_sgdw">施工单位</string>
+    <string name="pref_card_gjbw">构件部位</string>
+    <string name="pref_card_jzdw">见证单位</string>
+    <string name="pref_card_jzr">见 证 人</string>
+    <string name="pref_card_jzbh">见证编号</string>
+    <string name="pref_card_bzdw">拌制单位</string>
+    <string name="pref_card_phbbh">配合比编号</string>
+    <string name="pref_card_yhfs">养护方式</string>
+    <string name="pref_card_qddj">强度等级</string>
+    <string name="pref_card_sclsh">生产流水号</string>
+    <string name="pref_card_yplx">样品类型</string>
+    <string name="pref_card_zzrq">制作日期</string>
+    <string name="pref_card_jcjg">检测机构</string>
+    <string name="pref_card_wtbh">委托编号</string>
+    <string name="pref_card_ypbh">样品编号</string>
+    <string name="pref_card_zhz">荷载值</string>
+    <string name="pref_card_kyqd">抗压强度</string>
+    <string name="pref_card_sysj">试验时间</string>
+
+    <!-- add card -->
+    <string name="pref_title_project_info">工程信息</string>
+    <string name="pref_card_number1">卡号1:</string>
+    <string name="pref_card_number2">卡号2:</string>
+    <string name="pref_card_number3">卡号3:</string>
+    <string name="pref_add_default_dw">福州市混凝土试块芯片植入系统</string>
+    <string name="pref_add_card_gcmc">测试工程</string>
+    <string name="pref_add_card_wtdw">委托单位</string>
+    <string name="pref_card_card_sgdw">施工单位</string>
+    <string name="pref_card_card_jldw">监理单位</string>
+
+    <!-- System Info -->
+    <string name="pref_title_sys_info">系统信息</string>
+    <string name="pref_sys_version">版本</string>
+    <string name="pref_sys_user">用户名</string>
+    <string name="pref_sys_passwd">密码</string>
+    <string name="pref_sys_usertype">用户类型</string>
+    <string name="pref_sys_login">已登录</string>
+    <string name="pref_sys_logout">未登录</string>
+    <string name="pref_sys_login_oper">登录</string>
+    <string name="pref_sys_logout_oper">退出</string>
+
+    <!-- Toast Info -->
+    <string name="toast_hit_load_wait">加载中，请稍后.....</string>
+    <string name="toast_hit_upload_wait">上传中，请稍后.....</string>
+    <string name="toast_hit_new_version">当前已是最新版本!</string>
+    <string name="toast_hit_net_error">网络异常！</string>
+    <string name="toast_hit_sqlserver_error">服务器异常！</string>
+    <string name="toast_hit_sql_error">数据获取异常！</string>
+    <string name="toast_hit_link_error">数据未更新！</string>
+    <string name="toast_hit_upload_success">上传成功！</string>
+    <string name="toast_hit_upload_error">上传失败！</string>
+    <string name="toast_hit_upgrade_success">更新成功！</string>
+    <string name="toast_hit_upgrade_error">更新失败！</string>
+    <string name="toast_hit_liucheng_snap">功能暂未开通！</string>
+    <string name="toast_hit_save_success">保存成功！</string>
+    <string name="toast_hit_save_error">保存失败！</string>
+    <string name="toast_hit_login_error">请先登录！</string>
+
+
+    <!-- Http Echo -->
+    <string name="http_SUCCESS">成功</string>
+    <string name="http_ERROR_COMMON">请求错误</string>
+    <string name="http_ERROR_PARAM">请求参数错误</string>
+    <string name="http_ERROR_FORMAT">请求格式错误</string>
+    <string name="http_ERROR_TIMEOUT">请求超时</string>
+    <string name="http_ERROR_NOFOUND">请求的数据在系统中找不到</string>
+    <string name="http_ERROR_LICENSE">没有访问权限</string>
+    <string name="http_ERROR_ACCESS">授权错误</string>
+    <string name="http_ERROR_UPLOAD">文件上传错误</string>
+    <string name="http_ERROR_USERNAME">用户名错误</string>
+    <string name="http_ERROR_PASSWORD">密码错误</string>
+    <string name="http_ERROR_QUERY">未查询到该数据</string>
+    <string name="http_ERROR_SERVER">服务器异常</string>
+    <string name="http_ERROR_DEFAULT">未知错误</string>
+
+    <!-- Other -->
+    <string-array name="YHFS" >
+        <item>标准养护</item>
+        <item>同条件拆模</item>
+        <item>同条件(600°C天)</item>
+    </string-array>
+
+    <string-array name="YPLX">
+        <item>标准养护检验试块</item>
+        <item>拆模检验试块</item>
+        <item>同条件检验试块</item>
+        <item>出厂检验标养试块</item>
+        <item>交货检验标养试块</item>
+    </string-array>
+
+    <string-array name="QDDJ" >
+        <item>C10</item>
+        <item>C15</item>
+        <item>C20</item>
+        <item>C25</item>
+        <item>C30</item>
+        <item>C35</item>
+        <item>C40</item>
+        <item>C45</item>
+        <item>C50</item>
+        <item>C55</item>
+        <item>C60</item>
+        <item>C65</item>
+        <item>C70</item>
+        <item>C75</item>
+        <item>C80</item>
+        <item>C85</item>
+        <item>C90</item>
+        <item>C95</item>
+        <item>C100</item>
+        <item>C105</item>
+        <item>C110</item>
+        <item>C115</item>
+        <item>C120</item>
+    </string-array>
+
+    <string name="hit_ok">确定</string>
+    <string name="hit_cancle">取消</string>
+</resources>

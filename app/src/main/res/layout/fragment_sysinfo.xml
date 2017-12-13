@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F0F3F6"
+    >
+    <LinearLayout style="@style/wrap_layout">
+        <LinearLayout style="@style/single_layout"
+            android:id="@+id/nfc_sys_version">
+            <TextView style="@style/usertext"
+                android:id="@+id/sysinfo_version"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
+

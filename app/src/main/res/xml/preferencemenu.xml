@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="UserInfo"
+        android:title="@string/pref_menu_user" >
+    <PreferenceScreen
+        android:key="@string/key_pref_menu_login_user"
+        android:icon="@mipmap/left_user"
+        android:layout="@layout/preference_list_item_static">
+    </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="CardInfo"
+        android:title="@string/pref_menu_oper" >
+        <PreferenceScreen
+            android:key="@string/key_pref_menu_readcard"
+            android:title="@string/pref_menu_readcard"
+            android:icon="@mipmap/left_search"
+            android:layout="@layout/preference_list_item_static">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_menu_addcard"
+            android:title="@string/pref_menu_addcard"
+            android:icon="@mipmap/left_search"
+            android:layout="@layout/preference_list_item_static">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_menu_recordcard"
+            android:title="@string/pref_menu_recordcard"
+            android:icon="@mipmap/left_search"
+            android:layout="@layout/preference_list_item_static">
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="Setting"
+        android:title="@string/pref_menu_setting" >
+        <PreferenceScreen
+            android:key="@string/key_pref_menu_sysinfo"
+            android:title="@string/pref_title_sys_info"
+            android:icon="@mipmap/left_sysinfo"
+            android:layout="@layout/preference_list_item_static">
+        </PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

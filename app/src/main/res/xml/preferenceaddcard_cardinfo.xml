@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="CardInfo"
+        android:title="@string/pref_title_card_info">
+        <PreferenceScreen
+            android:key="@string/key_pref_card_number1"
+            android:title="@string/pref_card_number1"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_number2"
+            android:title="@string/pref_card_number2"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="@string/key_pref_card_number3"
+            android:title="@string/pref_card_number3"
+            android:layout="@layout/preference_list_item_layout">
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+</PreferenceScreen>
