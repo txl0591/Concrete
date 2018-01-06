@@ -3,11 +3,13 @@ package com.concrete.type;
 import com.concrete.common.IntentDef;
 import com.concrete.common.nlog;
 
+import java.io.Serializable;
+
 /**
  * Created by Tangxl on 2017/11/24.
  */
 
-public class ImageInfo {
+public class ImageInfo implements Serializable {
     public String cIMG_UUID;
     public String SKs_UUid;
     public String cfilehouzui;

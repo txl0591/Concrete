@@ -1,4 +1,6 @@
-package com.concrete.common;
+package com.concrete.net;
+
+import com.concrete.common.nlog;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -37,7 +39,7 @@ public class HttpUpload {
         //String CONTENT_TYPE = "multipart/form-data;charset=utf-8"; // 内容类型
         String CONTENT_TYPE = "multipart/form-data"; // 内容类型
         nlog.Info("RequestURL ["+RequestURL+"]");
-        HttpUtil.HttpReport(UPLOAD_START,0,0);
+        HttpDownload.HttpReport(UPLOAD_START,0,0);
         try {
             URL url = new URL(RequestURL);
             HttpURLConnection conn = null;
@@ -55,7 +57,7 @@ public class HttpUpload {
             } catch (IOException e) {
                 e.printStackTrace();
                 nlog.Info("openConnection ============= Error");
-                HttpUtil.HttpReport(UPLOAD_ERROR,0,0);
+                HttpDownload.HttpReport(UPLOAD_ERROR,0,0);
             }
 
             if (file != null) {
@@ -102,15 +104,15 @@ public class HttpUpload {
                     }
                     result = sb1.toString();
                     nlog.Info("result : " + result);
-                    HttpUtil.HttpReport(UPLOAD_SUCCESS,0,0);
+                    HttpDownload.HttpReport(UPLOAD_SUCCESS,0,0);
                  }
                  else{
                     nlog.Info("request error");
-                    HttpUtil.HttpReport(UPLOAD_ERROR,0,0);
+                    HttpDownload.HttpReport(UPLOAD_ERROR,0,0);
                  }
             }else{
                 nlog.Info("No File ============= Error");
-                HttpUtil.HttpReport(UPLOAD_ERROR,0,0);
+                HttpDownload.HttpReport(UPLOAD_ERROR,0,0);
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();

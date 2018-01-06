@@ -1,12 +1,15 @@
-package com.concrete.fragment;
+package com.concrete.ctrl;
 
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.View;
 
+import com.concrete.app.R;
 import com.concrete.common.IntentDef;
+import com.concrete.common.nlog;
 
 @SuppressLint("ValidFragment")
 public class FragmentBase extends PreferenceFragment {
@@ -23,9 +26,16 @@ public class FragmentBase extends PreferenceFragment {
 	}
 
 	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+	}
+
+	@Override
 	public void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
 	}
-	
+
+
 }

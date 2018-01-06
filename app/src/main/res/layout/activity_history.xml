@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout android:layout_width="fill_parent" android:layout_height="48.0dip">
+        <TextView android:id="@+id/TotilText" android:text="@string/app_name" android:layout_centerInParent="true" style="@style/style_text_title_bar" />
+    </RelativeLayout>
+    <View style="@style/style_divider" />
+    <RelativeLayout
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <HorizontalScrollView
+            android:id="@+id/BrowerInfo"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            >
+            <LinearLayout
+                android:id="@+id/linearLayout1"
+                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                >
+                <com.concrete.ctrl.ListCtrl
+                    android:id="@+id/BrowerTop"
+                    android:layout_width="410dp"
+                    android:layout_height="wrap_content"
+                    />
+                <com.concrete.ctrl.ListCtrl
+                    android:id="@+id/BrowerCard"
+                    android:layout_width="410dp"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+    </RelativeLayout>
+</LinearLayout>

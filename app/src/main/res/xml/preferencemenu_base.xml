@@ -11,28 +11,51 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="CardInfo"
+        android:key="CardBase"
         android:title="@string/pref_menu_oper" >
-        <PreferenceScreen
+        <Preference
             android:key="@string/key_pref_menu_readcard"
             android:title="@string/pref_menu_readcard"
             android:icon="@mipmap/left_search"
             android:layout="@layout/preference_list_item_static">
-        </PreferenceScreen>
+        </Preference >
+    </PreferenceCategory>
 
-        <PreferenceScreen
+    <PreferenceCategory
+        android:key="CardAdd"
+        android:title="@string/pref_menu_sg_oper" >
+
+        <Preference
             android:key="@string/key_pref_menu_addcard"
             android:title="@string/pref_menu_addcard"
             android:icon="@mipmap/left_search"
             android:layout="@layout/preference_list_item_static">
-        </PreferenceScreen>
+        </Preference >
 
-        <PreferenceScreen
+        <Preference
             android:key="@string/key_pref_menu_recordcard"
             android:title="@string/pref_menu_recordcard"
             android:icon="@mipmap/left_search"
             android:layout="@layout/preference_list_item_static">
-        </PreferenceScreen>
+        </Preference >
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="CardCollete"
+        android:title="@string/pref_menu_sy_oper" >
+        <Preference
+            android:key="@string/key_pref_menu_collect"
+            android:title="@string/pref_menu_collect"
+            android:icon="@mipmap/left_search"
+            android:layout="@layout/preference_list_item_static">
+        </Preference >
+
+        <Preference
+            android:key="@string/key_pref_menu_recordcaiji"
+            android:title="@string/pref_menu_recordcard"
+            android:icon="@mipmap/left_search"
+            android:layout="@layout/preference_list_item_static">
+        </Preference >
     </PreferenceCategory>
 
     <PreferenceCategory

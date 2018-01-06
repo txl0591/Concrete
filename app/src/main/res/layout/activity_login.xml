@@ -8,7 +8,7 @@
     <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" android:layout_marginTop="60.0dip" android:layout_marginRight="20.0dip">
         <EditText android:id="@+id/et_username" android:layout_width="fill_parent" android:layout_height="48.0dip" android:hint="@string/pref_sys_user" style="@style/style_text_input" />
         <EditText android:id="@+id/et_password" android:layout_width="fill_parent" android:layout_height="48.0dip" android:hint="@string/pref_sys_passwd" android:inputType="textPassword" style="@style/style_text_input" />
-        <EditText android:id="@+id/et_usertype" android:layout_width="fill_parent" android:layout_height="48.0dip" android:hint="@string/pref_sys_usertype" style="@style/style_text_input" />
+        <EditText android:id="@+id/et_usertype" android:layout_width="fill_parent" android:layout_height="48.0dip" android:hint="@string/pref_sys_usertype" style="@style/style_text_input" android:editable="false" />
     </LinearLayout>
     <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" android:layout_marginTop="40.0dip" android:layout_marginRight="20.0dip">
         <TextView android:id="@+id/btn_login" android:layout_width="0.0dip" android:layout_height="48.0dip" android:text="@string/pref_sys_login_oper" android:layout_weight="1.0" style="@style/style_button" />

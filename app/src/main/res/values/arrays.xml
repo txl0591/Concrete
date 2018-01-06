@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="YHFS" >
+        <item>标准养护</item>
+        <item>同条件拆模</item>
+        <item>同条件(600°C天)</item>
+    </string-array>
+
+    <string-array name="YPLX">
+        <item>标准养护检验试块</item>
+        <item>拆模检验试块</item>
+        <item>同条件检验试块</item>
+        <item>出厂检验标养试块</item>
+        <item>交货检验标养试块</item>
+    </string-array>
+
+    <string-array name="QDDJ" >
+        <item>C10</item>
+        <item>C15</item>
+        <item>C20</item>
+        <item>C25</item>
+        <item>C30</item>
+        <item>C35</item>
+        <item>C40</item>
+        <item>C45</item>
+        <item>C50</item>
+        <item>C55</item>
+        <item>C60</item>
+        <item>C65</item>
+        <item>C70</item>
+        <item>C75</item>
+        <item>C80</item>
+        <item>C85</item>
+        <item>C90</item>
+        <item>C95</item>
+        <item>C100</item>
+        <item>C105</item>
+        <item>C110</item>
+        <item>C115</item>
+        <item>C120</item>
+    </string-array>
+
+    <string-array name="list_entries">
+        <item>山东</item>
+        <item>福建</item>
+        <item>北京</item>
+        <item>河北</item>
+    </string-array>
+    <string-array name="list_entries_value">
+        <item>shandong1</item>
+        <item>fujian1</item>
+        <item>beijing1</item>
+        <item>hebei1</item>
+    </string-array>
+    <string-array name="list_entries_value2">
+        <item>shandong2</item>
+        <item>fujian2</item>
+        <item>beijing2</item>
+        <item>hebei2</item>
+    </string-array>
+</resources>

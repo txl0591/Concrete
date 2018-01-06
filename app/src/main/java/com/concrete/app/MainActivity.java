@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.concrete.common.IntentDef;
-import com.concrete.fragment.LeftMenuFragment;
+import com.concrete.ctrl.LeftMenuFragment;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 public class MainActivity extends Activity implements IntentDef.OnFragmentListener {
@@ -48,7 +48,7 @@ public class MainActivity extends Activity implements IntentDef.OnFragmentListen
     }
 
     @Override
-    public void OnFragmentReport(String Id) {
+    public void OnFragmentReport(int Id) {
 
     }
 

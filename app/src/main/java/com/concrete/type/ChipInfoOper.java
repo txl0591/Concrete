@@ -10,24 +10,20 @@ import java.util.List;
  */
 
 public class ChipInfoOper {
-        public String Table;
         public String Cmd;
         public int index;
         public List<ChipInfo> items;
 
-        public ChipInfoOper(String Cmd, int index, List<ChipInfo> items){
-            this.Table = getClass().getSimpleName();
+        public ChipInfoOper(String Cmd, List<ChipInfo> items){
             this.Cmd = Cmd;
             this.index = items.size();
             this.items = items;
-            this.Table = ChipInfoList.TABLE;
         }
 
         public void PrintChipInfoOper(){
-            this.Table = getClass().getSimpleName();
             this.Cmd = Cmd;
             this.items = items;
             nlog.IfInfo(IntentDef.LOG_LEVEL.LOG_HIGH,"this.Cmd ["+this.Cmd+"]");
-            nlog.IfInfo(IntentDef.LOG_LEVEL.LOG_HIGH,"this.ClassName ["+this.Table+"]");
+            nlog.IfInfo(IntentDef.LOG_LEVEL.LOG_HIGH,"this.items.size() ["+this.items.size()+"]");
         }
 }

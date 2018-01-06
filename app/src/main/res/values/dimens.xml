@@ -7,6 +7,6 @@
     <dimen name="standard_padding">8dip</dimen>
     <dimen name="half_padding">4dip</dimen>
 
-    <dimen name="slidingmenu_offset">30dp</dimen>
+    <dimen name="slidingmenu_offset">250dp</dimen>
     <dimen name="shadow_width">10dp</dimen>
 </resources>

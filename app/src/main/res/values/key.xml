@@ -4,7 +4,10 @@
     <string name="key_pref_menu_info">pref_menu_info</string>
     <string name="key_pref_menu_oper">pref_menu_oper</string>
     <string name="key_pref_menu_addcard">pref_menu_addcard</string>
+    <string name="key_pref_menu_collect">pref_menu_collect</string>
+    <string name="key_pref_menu_recordcaiji">pref_menu_recordcaiji</string>
     <string name="key_pref_menu_recordcard">pref_menu_recordcard</string>
+
     <string name="key_pref_menu_setting">pref_menu_setting</string>
     <string name="key_pref_menu_sysinfo">pref_menu_sysinfo</string>
     <string name="key_pref_menu_readcard">pref_menu_readcard</string>
@@ -13,6 +16,7 @@
     <string name="key_pref_title_card_info">pref_title_card_info</string>
     <string name="key_pref_card_sjbh">pref_card_sjbh</string>
     <string name="key_pref_card_card">pref_card_card</string>
+    <string name="key_pref_card_gcid">pref_card_gcid</string>
     <string name="key_pref_card_gcmc">pref_card_gcmc</string>
     <string name="key_pref_card_wtdw">pref_card_wtdw</string>
     <string name="key_pref_card_sgdw">pref_card_sgdw</string>

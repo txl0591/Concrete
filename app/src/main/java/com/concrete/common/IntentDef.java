@@ -19,29 +19,15 @@ import android.view.View;
 
 public class IntentDef {
 
+	public static final int APP_MODE_CAIJI = 0x00;
+	public static final int APP_MODE_WRITE = 0x01;
+
+	public static final int APP_MODE = APP_MODE_WRITE;
+
+	public static final String DEFAULT_PATH = Common.getInnerSDCardPath() +"/"+ "CoreSoft";
 	public static final String SERVICE_NAME_MAIN			="com.rfid.service.MainService";
 
-	public static final String MODULE_RESPONSION			="rfid.intent.action.MODULE_RESPONSION";
-	public static final String MODULE_DISTRIBUTE			="rfid.intent.action.MODULE_DISTRIBUTE";
-
-	public static final String INTENT_COMM_CMD				="rfid.intent.netcomm.CMD";
-	public static final String INTENT_COMM_DATA			="rfid.intent.netcomm.DATA";
-	public static final String INTENT_COMM_DATALEN		="rfid.intent.netcomm.DATALEN";
-	public static final String INTENT_COMM_PARAM			="rfid.intent.netcomm.PARAM";
-	public static final int    INTENT_TYPE_INVALID        = -1;
-
 	public final static String DEFAULT_DIR = "CoreSoft";
-
-	public  final static String HTTP_SERVICE = "http://268212.iask.in:10433?";
-
-	public class HTTP_CMD{
-		public static final String Http_LoginIn = "LoginIn";
-		public static final String Http_LoginOut = "LoginOut";
-		public static final String Http_Query = "Query";
-		public static final String Http_Insert = "Insert";
-		public static final String Http_Update = "Update";
-		public static final String Http_Delete = "Delete";
-	}
 
 	public class LOG_LEVEL{
 		public static final int LOG_LOW = 0x01;
@@ -53,7 +39,7 @@ public class IntentDef {
 	public interface OnFragmentListener
 	{
 		public void OnFragmentReport(View view);
-		public void OnFragmentReport(String Id);
+		public void OnFragmentReport(int Id);
 	}
 
 	public interface OnSqlReportListener
@@ -97,8 +83,5 @@ public class IntentDef {
 		public void OnHttpDataReport(int Oper, long param1, long param2);
 	}
 
-	public interface HttpReqCallBack
-	{
-		void onReqSuccess(int Cmd, Handler handler, Object result);
-	}
+
 }

@@ -13,8 +13,6 @@ import java.util.List;
 
 public class ImageInfoList implements Serializable {
 
-    public final static String TABLE = "SK_image";
-
     public boolean result;
     public String error;
     public int echo_code;

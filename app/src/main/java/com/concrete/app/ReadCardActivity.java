@@ -2,25 +2,17 @@ package com.concrete.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.FormatException;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.nfc.TagLostException;
-import android.nfc.tech.MifareClassic;
-import android.nfc.tech.MifareUltralight;
-import android.nfc.tech.Ndef;
-import android.nfc.tech.NfcA;
-import android.nfc.tech.NfcF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
 import android.view.View;
@@ -29,30 +21,23 @@ import android.widget.Toast;
 
 import com.concrete.common.CardManager;
 import com.concrete.common.Common;
-import com.concrete.common.CrcUtil;
-import com.concrete.common.HttpEcho;
+import com.concrete.net.HttpBroadCast;
+import com.concrete.net.HttpEcho;
 import com.concrete.common.IntentDef;
 import com.concrete.common.nlog;
-import com.concrete.fragment.FragmentBase;
-import com.concrete.fragment.LeftMenuFragment;
-import com.concrete.logic.Logic;
+import com.concrete.ctrl.FragmentBase;
+import com.concrete.ctrl.LeftMenuFragment;
+import com.concrete.net.HttpLogic;
 import com.concrete.type.ChipInfo;
 import com.concrete.type.ChipInfoList;
 import com.concrete.type.SJBHInfo;
 import com.concrete.type.SJBHInfoList;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static com.concrete.common.Common.ByteArrayToHexString;
-import static com.concrete.common.StringUtils.convertByteArrayToHexString;
-import static com.concrete.common.StringUtils.convertHexStringToByteArray;
-import static com.concrete.common.StringUtils.removeSpaces;
-import static com.concrete.logic.Logic.*;
+import static com.concrete.net.HttpDef.HTTP_OPER_CMD.*;
 
 /**
  * Created by Tangxl on 2017/11/18.
@@ -72,14 +57,45 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
     private HandlerEvent mHandlerEvent = null;
     private HttpHandlerEvent mHttpHandlerEvent = null;
     private ProgressDialog mProgressDialog = null;
-    private Logic mLogic = null;
+    private HttpLogic mLogic = null;
     private SJBHInfoList mSJBHInfoList = null;
+    private ChipInfoList mChipInfoList = null;
+    private Context mContext = null;
+    private HttpBroadCast mHttpBroadCast = null;
+    private final int mReadCardInfo[] =
+    {
+            R.string.key_pref_title_card_info,
+            R.string.key_pref_card_sjbh,
+            R.string.key_pref_card_card,
+            R.string.key_pref_card_gcmc,
+            R.string.key_pref_card_wtdw,
+            R.string.key_pref_card_sgdw,
+            R.string.key_pref_card_gjbw,
+            R.string.key_pref_card_jzdw,
+            R.string.key_pref_card_jzdw,
+            R.string.key_pref_card_jzr,
+            R.string.key_pref_card_jzbh,
+            R.string.key_pref_card_bzdw,
+            R.string.key_pref_card_phbbh,
+            R.string.key_pref_card_yhfs,
+            R.string.key_pref_card_qddj,
+            R.string.key_pref_card_sclsh,
+            R.string.key_pref_card_yplx,
+            R.string.key_pref_card_zzrq,
+            R.string.key_pref_card_jcjg,
+            R.string.key_pref_card_wtbh,
+            R.string.key_pref_card_ypbh,
+            R.string.key_pref_card_zhz,
+            R.string.key_pref_card_kyqd,
+            R.string.key_pref_card_sysj,
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_readcard);
+        mContext = this;
         if (savedInstanceState == null) {
 
             mReadCardInfoFragment = new ReadCardInfoFragment(this,0);
@@ -101,16 +117,18 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
                     .add(R.id.left_menuconfig, mLeftMenuFragment)
                     .commit();
         }
-        mLogic = new Logic(this);
+        mLogic = new HttpLogic(this);
         mHandlerEvent = new HandlerEvent(this);
         mHttpHandlerEvent = new HttpHandlerEvent(this);
         InitNFCLocal();
+        mHttpBroadCast = new HttpBroadCast(this,mHttpHandlerEvent);
     }
 
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
+        mLogic.Close();
     }
 
     @Override
@@ -120,6 +138,7 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
         DisableNFC();
         if (mSlidingMenu.isMenuShowing())
             mSlidingMenu.toggle();
+        mHttpBroadCast.Close();
     }
 
     @Override
@@ -128,12 +147,37 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
         super.onResume();
         EnableNFC();
         mSlidingMenu.showContent();
+        mHttpBroadCast.Start();
+    }
+
+    public int GetCardId(String Id){
+        int mId = 0;
+
+        for(int i = 0; i < mReadCardInfo.length; i++){
+            if (Id.equals(getResources().getString(mReadCardInfo[i]))){
+                mId = mReadCardInfo[i];
+                break;
+            }
+        }
+        return mId;
     }
 
     private void InitNFCLocal(){
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if(null != mNfcAdapter){
             mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()), 0);
+        }
+        if(false == Common.IsNfcOpen(mContext)){
+            new  AlertDialog.Builder(this)
+                    .setTitle("")
+                    .setMessage(getResources().getString(R.string.toast_hit_nfc_close))
+                    .setPositiveButton(getResources().getString(R.string.hit_ok), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivity(new Intent("android.settings.NFC_SETTINGS"));
+                        }
+                    })
+                    .show();
         }
     }
 
@@ -157,15 +201,12 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
             String str = ByteArrayToHexString(tag.getId());
             mCardNum = Long.parseLong(str, 16);
             nlog.Info("NFC==============================["+str+"] ["+String.valueOf(mCardNum)+"]");
-            //readTagClassic(tag);
-            readMifareClassic(tag);
-//            Message msg = new Message();
-//            msg.what = HANDLER_READCARD_NET;
-//            Bundle mBundle = new Bundle();
-//            mBundle.putString("RFID",String.valueOf(mCardNum));
-//            msg.setData(mBundle);
-//            mHandlerEvent.sendMessage(msg);
-           // readTagClassic(tag);
+            Message msg = new Message();
+            msg.what = HANDLER_READCARD_NET;
+            Bundle mBundle = new Bundle();
+            mBundle.putString("RFID",String.valueOf(mCardNum));
+            msg.setData(mBundle);
+            mHandlerEvent.sendMessage(msg);
         }
     }
 
@@ -195,8 +236,21 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
     }
 
     @Override
-    public void OnFragmentReport(String Id) {
+    public void OnFragmentReport(int Id) {
+        nlog.Info("OnFragmentReport==============["+Id+"]");
+        ShowFragmentInfo(Id);
+    }
 
+    public void ShowFragmentInfo(int Id){
+
+        Preference mPreference = mReadCardInfoFragment.GetPreferenceParam(Id);
+        if(mPreference != null && mPreference.getSummary() != null){
+            new  AlertDialog.Builder(this)
+                    .setTitle(mPreference.getTitle().toString())
+                    .setMessage(mPreference.getSummary().toString())
+                    .setPositiveButton(getResources().getString(R.string.hit_ok) ,  null )
+                    .show();
+        }
     }
 
     @SuppressLint("ValidFragment")
@@ -204,33 +258,7 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
 
         private Preference mCardPreference = null;
         private ArrayList<Preference> mPreferenceList = null;
-        private final int mReadCardInfo[] =
-        {
-                R.string.key_pref_title_card_info,
-                R.string.key_pref_card_sjbh,
-                R.string.key_pref_card_card,
-                R.string.key_pref_card_gcmc,
-                R.string.key_pref_card_wtdw,
-                R.string.key_pref_card_sgdw,
-                R.string.key_pref_card_gjbw,
-                R.string.key_pref_card_jzdw,
-                R.string.key_pref_card_jzdw,
-                R.string.key_pref_card_jzr,
-                R.string.key_pref_card_jzbh,
-                R.string.key_pref_card_bzdw,
-                R.string.key_pref_card_phbbh,
-                R.string.key_pref_card_yhfs,
-                R.string.key_pref_card_qddj,
-                R.string.key_pref_card_sclsh,
-                R.string.key_pref_card_yplx,
-                R.string.key_pref_card_zzrq,
-                R.string.key_pref_card_jcjg,
-                R.string.key_pref_card_wtbh,
-                R.string.key_pref_card_ypbh,
-                R.string.key_pref_card_zhz,
-                R.string.key_pref_card_kyqd,
-                R.string.key_pref_card_sysj,
-        };
+
 
         public ReadCardInfoFragment(Context context, int SelfId) {
             super(context, SelfId);
@@ -256,6 +284,16 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
                 return mPreference.getSummary().toString();
             }
             return null;
+        }
+
+        public Preference GetPreferenceParam(int Id){
+            Preference mPreference = findPreference(getResources().getString(Id));
+            return mPreference;
+        }
+
+        public Preference GetPreferenceParam(String Id){
+            Preference mPreference = findPreference(Id);
+            return mPreference;
         }
 
         public void ClearRFID()
@@ -317,7 +355,7 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
             if(null != mOnFragmentListener){
-                mOnFragmentListener.OnFragmentReport(preference.getKey());
+                mOnFragmentListener.OnFragmentReport(GetCardId(preference.getKey()));
             }
             return super.onPreferenceTreeClick(preferenceScreen, preference);
         }
@@ -343,7 +381,7 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
 
                 case HANDLER_READCARD_NET:
                     ShowWaitDialog();
-                    mLogic.QueryRFID(msg.getData().getString("RFID"),mHttpHandlerEvent);
+                    mLogic.QueryRFID(msg.getData().getString("RFID"));
                     break;
 
                 default:
@@ -361,14 +399,13 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
 
         @Override
         public void handleMessage(Message msg) {
-            super.handleMessage(msg);
             switch(msg.what){
                 case HANDLE_HTTP_QUERY_RFID:
                     if(msg.arg1 == HttpEcho.SUCCESS){
-                        ChipInfoList mChipInfoList = (ChipInfoList)msg.getData().getSerializable("HANDLE_HTTP_QUERY_RFID");
+                        mChipInfoList = (ChipInfoList)msg.getData().getSerializable("HANDLE_HTTP_QUERY_RFID");
                         mChipInfoList.PrintChipInfoList();
                         ChipInfo mChipInfo = mChipInfoList.items.get(0);
-                        mLogic.QuerySJBH(mChipInfo.TBL_SJBH,mHttpHandlerEvent);
+                        mLogic.QuerySJBH(mChipInfo.TBL_SJBH);
                     }else{
                         mHandlerEvent.sendEmptyMessage(HANDLER_READCARD_ONlY);
                         HideWaitDialog();
@@ -396,197 +433,6 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
 
     private void HttpToast(Context context,int Error){
         Toast.makeText(context, HttpEcho.GetHttpEcho(Error),Toast.LENGTH_SHORT).show();
-    }
-
-    public static byte[] setParamCRC(byte[] buf)
-    {
-        int MASK = 0x0001, CRCSEED = 0x0810;
-        int remain = 0;
-
-        byte val;
-        for (int i = 0; i < buf.length; i++)
-        {
-            val = buf[i];
-            for (int j = 0; j < 8; j++)
-            {
-                if (((val ^ remain) & MASK) != 0)
-                {
-                    remain ^= CRCSEED;
-                    remain >>= 1;
-                    remain |= 0x8000;
-                }
-                else
-                {
-                    remain >>= 1;
-                }
-                val >>= 1;
-            }
-        }
-
-        byte[] crcByte = new byte[2+buf.length];
-
-        for(int i = 0;i < buf.length; i++){
-            crcByte[i] = buf[i];
-        }
-        crcByte[buf.length] = (byte) ((remain >> 8) & 0xff);
-        crcByte[buf.length+1] = (byte) (remain & 0xff);
-
-        // 将新生成的byte数组添加到原数据结尾并返回
-        return crcByte;
-    }
-
-    public boolean readTagClassic(Tag tag) {
-
-        NfcA nfca = NfcA.get(tag);
-
-        try {
-            nfca.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        byte[] atqa = nfca.getAtqa();
-
-        nlog.Info("readTagClassic ============atqa ["+atqa[0]+" "+atqa[1]+"]");
-
-        byte sak = (byte)nfca.getSak();
-        nlog.Info("readTagClassic ============atqa ["+sak+"] nfca getMaxTransceiveLength ["+nfca.getMaxTransceiveLength()+"]");
-
-        byte[] cmd = new byte[]{0x60,0x0c,0x00,0x00,0x00,0x00,(byte)0xFF,(byte)0xFF,(byte)0xFF,(byte)0xFF, (byte)0xFF, (byte)0xFF};
-        //(byte)0xFF,(byte)0xFF
-
-        try {
-            byte[] echo = nfca.transceive(cmd);
-            nlog.Info("readTagClassic =======transceive=====OK ["+Common.toHexString(echo)+"]");
-        } catch (IOException e) {
-            e.printStackTrace();
-            nlog.Info("readTagClassic =======transceive=====Error");
-        }
-        try {
-            nfca.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return true;
-
-    }
-
-    private Boolean isKeyMifareClassicEnable(MifareClassic mfc,int sectorIndex,byte[] myKeyA){
-        boolean auth = false;
-        try {
-            auth = mfc.authenticateSectorWithKeyA(sectorIndex,
-                    MifareClassic.KEY_DEFAULT);
-            if(!auth){
-                auth = mfc.authenticateSectorWithKeyA(sectorIndex,
-                        myKeyA);
-            }
-            if(!auth){
-                auth = mfc.authenticateSectorWithKeyA(sectorIndex,
-                        MifareClassic.KEY_NFC_FORUM);
-            }
-
-            auth = mfc.authenticateSectorWithKeyB(sectorIndex,
-                    MifareClassic.KEY_DEFAULT);
-            if(!auth){
-                auth = mfc.authenticateSectorWithKeyB(sectorIndex,
-                        myKeyA);
-            }
-            if(!auth){
-                auth = mfc.authenticateSectorWithKeyB(sectorIndex,
-                        MifareClassic.KEY_NFC_FORUM);
-            }
-        } catch (IOException e) {
-            nlog.Info("IOException while authenticateSectorWithKey MifareClassic...");
-        }
-        return auth;
-    }
-
-    public String readMifareClassic(Tag tag) {
-        boolean auth = false;
-
-       // byte[] mifarekey ={(byte) 0x13,(byte)0x59,(byte)0x94,(byte)0x46,(byte)0x81,(byte)0x3f};
-        byte[] mifarekey ={(byte) 0xA0,(byte)0xA1,(byte)0xA2,(byte)0xA3,(byte)0xA4,(byte)0xA5};
-
-        MifareClassic mfc = MifareClassic.get(tag);
-        // 读取TAG
-        try {
-            String metaInfo = "";
-            mfc.connect();
-            int type = mfc.getType();// 获取TAG的类型
-            int sectorCount = mfc.getSectorCount();// 获取TAG中包含的扇区数
-            String typeS = "";
-            switch (type) {
-                case MifareClassic.TYPE_CLASSIC:
-                    typeS = "TYPE_CLASSIC";
-                    break;
-                case MifareClassic.TYPE_PLUS:
-                    typeS = "TYPE_PLUS";
-                    break;
-                case MifareClassic.TYPE_PRO:
-                    typeS = "TYPE_PRO";
-                    break;
-                case MifareClassic.TYPE_UNKNOWN:
-                    typeS = "TYPE_UNKNOWN";
-                    break;
-            }
-
-            if(mfc.isConnected()){
-                nlog.Info("================Connect");
-            }else{
-                nlog.Info("==Dis==============Connect");
-            }
-
-            for(int i = 0; i < mfc.getSectorCount(); i++){
-                boolean ret = mfc.authenticateSectorWithKeyA(i,MifareClassic.KEY_DEFAULT);
-                nlog.Info("authenticateSectorWithKeyA ["+i+"] ret = ["+ret+"]");
-            }
-
-            metaInfo += "CardType: " + typeS + "\n Total" + sectorCount + "Sector\n"
-                    + mfc.getBlockCount() + "Block\nSize: " + mfc.getSize()
-                    + "B\n";
-            for (int j = 0; j < sectorCount; j++) {
-                // Authenticate a sector with key A.
-
-                auth = isKeyMifareClassicEnable(mfc,j,mifarekey);
-                int bCount;
-                int bIndex;
-                if (auth) {
-                    metaInfo += "Sector " + j + ":Success\n";
-                    // 读取扇区中的块
-                    bCount = mfc.getBlockCountInSector(j);
-                    bIndex = mfc.sectorToBlock(j);
-                    for (int i = 0; i < bCount; i++) {
-                        byte[] data = mfc.readBlock(bIndex);
-                        metaInfo += "Block " + bIndex + " : "
-                                + ByteArrayToHexString(data) + "\n";
-                        bIndex++;
-                    }
-                } else {
-                    metaInfo += "Sector " + j + ":Failue\n";
-                }
-            }
-
-            nlog.Info("metaInfo ========== ["+metaInfo+"]");
-            mfc.close();
-            return metaInfo;
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        } finally {
-            if (mfc != null) {
-                try {
-                    mfc.close();
-                } catch (IOException e) {
-                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG)
-                            .show();
-                }
-            }
-        }
-
-
-        return null;
-
     }
 
 }

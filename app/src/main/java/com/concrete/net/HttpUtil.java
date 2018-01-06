@@ -1,9 +1,10 @@
-package com.concrete.common;
+package com.concrete.net;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
-import android.util.Log;
+
+import com.concrete.common.AESUtils;
+import com.concrete.common.nlog;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -23,11 +24,11 @@ import okhttp3.Response;
  * Created by Tangxl on 2017/11/22.
  */
 
-public class HttpManager {
+public class HttpUtil {
 
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");//mdiatype 这个需要和服务端保持一致
     private static final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/markdown; charset=utf-8");//mdiatype 这个需要和服务端保持一致
-    private static volatile HttpManager mInstance;//单利引用
+    private static volatile HttpUtil mInstance;//单利引用
     public static final int TYPE_GET = 0;//get请求
     public static final int TYPE_POST_JSON = 1;//post请求参数为json
     public static final int TYPE_POST_PARAM_JSON = 2;//post请求参数为json
@@ -36,7 +37,7 @@ public class HttpManager {
     private Handler okHttpHandler;//全局处理子线程和M主线程通信
 
 
-    public HttpManager(Context context) {
+    public HttpUtil(Context context) {
         //初始化OkHttpClient
         mOkHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(10, TimeUnit.SECONDS)//设置超时时间
@@ -47,13 +48,13 @@ public class HttpManager {
         okHttpHandler = new Handler(context.getMainLooper());
     }
 
-    public static HttpManager getInstance(Context context) {
-        HttpManager inst = mInstance;
+    public static HttpUtil getInstance(Context context) {
+        HttpUtil inst = mInstance;
         if (inst == null) {
-            synchronized (HttpManager.class) {
+            synchronized (HttpUtil.class) {
                 inst = mInstance;
                 if (inst == null) {
-                    inst = new HttpManager(context.getApplicationContext());
+                    inst = new HttpUtil(context);
                     mInstance = inst;
                 }
             }
@@ -68,37 +69,58 @@ public class HttpManager {
         return builder;
     }
 
-    private void requestGetBySyn(String actionUrl, HashMap<String, String> paramsMap) {
+
+
+
+    private String requestGetBySyn(String actionUrl, int encrypt, HashMap<String, String> paramsMap, String Json) {
+        String Echo = null;
+        Request request = null;
+        String requestUrl = null;
         StringBuilder tempParams = new StringBuilder();
         try {
             //处理参数
             int pos = 0;
-            for (String key : paramsMap.keySet()) {
-                if (pos > 0) {
-                    tempParams.append("&");
+            if(null != paramsMap){
+                for (String key : paramsMap.keySet()) {
+                    if (pos > 0) {
+                        tempParams.append("&");
+                    }
+                    tempParams.append(String.format("%s=%s", key, URLEncoder.encode(paramsMap.get(key), "utf-8")));
+                    pos++;
                 }
-                //对参数进行URLEncoder
-                tempParams.append(String.format("%s=%s", key, URLEncoder.encode(paramsMap.get(key), "utf-8")));
-                pos++;
+
+                if(encrypt == 0){
+                    requestUrl = String.format("%s?%s", actionUrl, tempParams.toString());
+                }else{
+                    String ParamsEN = AESUtils.encode(tempParams.toString());
+                    requestUrl = String.format("%s?%s", actionUrl, ParamsEN);
+                }
+                request = addHeaders().url(requestUrl).build();
+                nlog.Info("requestGetByAsyn requestUrl ["+requestUrl+"]");
+            }else{
+                requestUrl = String.format("%s", actionUrl);
+                nlog.Info("requestGetByAsyn requestUrl ["+requestUrl+"] Json.getBytes().toString() ["+Json.getBytes().toString()+"]");
+
+                RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, Json);
+                request = addHeaders().url(requestUrl).post(body).build();
             }
-            //补全请求地址
-            String requestUrl = String.format("%s?%s", actionUrl, tempParams.toString());
-            nlog.Info("requestUrl ["+requestUrl+"]");
-            //创建一个请求
-            Request request = addHeaders().url(requestUrl).build();
             //创建一个Call
             final Call call = mOkHttpClient.newCall(request);
             //执行请求
             final Response response = call.execute();
-            response.body().string();
+            if (response.isSuccessful()) {
+                Echo = response.body().string();
+            }
         } catch (Exception e) {
             nlog.Info(e.toString());
         }
+
+        return Echo;
     }
 
-    private void requestPostBySyn(String actionUrl, HashMap<String, String> paramsMap) {
+    private String requestPostJsonBySyn(String actionUrl, int encrypt, HashMap<String, String> paramsMap, String Json) {
+        String Echo = null;
         try {
-            //处理参数
             StringBuilder tempParams = new StringBuilder();
             int pos = 0;
             for (String key : paramsMap.keySet()) {
@@ -108,29 +130,67 @@ public class HttpManager {
                 tempParams.append(String.format("%s=%s", key, URLEncoder.encode(paramsMap.get(key), "utf-8")));
                 pos++;
             }
-            //补全请求地址
-            String requestUrl = actionUrl;
-            //生成参数
-            String params = tempParams.toString();
-            //创建一个请求实体对象 RequestBody
-            RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, params);
-            //创建一个请求
+
+            nlog.Info("tempParams.toString() ["+tempParams.toString()+"]");
+
+            String requestUrl = null;
+            if(encrypt == 0){
+                requestUrl = String.format("%s?%s", actionUrl, tempParams.toString());
+            }else{
+                String ParamsEN = AESUtils.encode(tempParams.toString());
+                requestUrl = String.format("%s?%s", actionUrl, ParamsEN);
+            }
+
+            nlog.Info("requestUrl ["+requestUrl+"]");
+
+            RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, Json);
             final Request request = addHeaders().url(requestUrl).post(body).build();
-            //创建一个Call
             final Call call = mOkHttpClient.newCall(request);
             //执行请求
             Response response = call.execute();
             //请求执行成功
             if (response.isSuccessful()) {
-                //获取返回数据 可以是String，bytes ,byteStream
-                nlog.Info("response ----->" + response.body().string());
+                Echo = response.body().string();
             }
         } catch (Exception e) {
             nlog.Info( e.toString());
         }
+
+        return Echo;
     }
 
-    private void requestPostBySynWithForm(String actionUrl, HashMap<String, String> paramsMap) {
+    private String requestPostBySyn(String actionUrl, int encrypt, HashMap<String, String> paramsMap) {
+        String Echo = null;
+        try {
+            StringBuilder tempParams = new StringBuilder();
+            int pos = 0;
+            for (String key : paramsMap.keySet()) {
+                if (pos > 0) {
+                    tempParams.append("&");
+                }
+                tempParams.append(String.format("%s=%s", key, URLEncoder.encode(paramsMap.get(key), "utf-8")));
+                pos++;
+            }
+            String params = tempParams.toString();
+            RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, params);
+            String requestUrl = actionUrl;
+            final Request request = addHeaders().url(requestUrl).post(body).build();
+            final Call call = mOkHttpClient.newCall(request);
+            //执行请求
+            Response response = call.execute();
+            //请求执行成功
+            if (response.isSuccessful()) {
+                Echo = response.body().string();
+            }
+        } catch (Exception e) {
+            nlog.Info( e.toString());
+        }
+
+        return Echo;
+    }
+
+    private String requestPostBySynWithForm(String actionUrl, HashMap<String, String> paramsMap) {
+        String Echo = null;
         try {
             //创建一个FormBody.Builder
             FormBody.Builder builder = new FormBody.Builder();
@@ -149,47 +209,69 @@ public class HttpManager {
             //执行请求
             Response response = call.execute();
             if (response.isSuccessful()) {
-                nlog.Info( "response ----->" + response.body().string());
+                Echo = response.body().string();
             }
         } catch (Exception e) {
             nlog.Info( e.toString());
         }
+
+        return Echo;
     }
 
-    public void sendrequest(String actionUrl, int requestType, HashMap<String, String> paramsMap) {
+    public String SendRequest(String actionUrl, int requestType, int encrypt, HashMap<String, String> paramsMap, String Json) {
+        String Echo = null;
         switch (requestType) {
             case TYPE_GET:
-                requestGetBySyn(actionUrl, paramsMap);
+                Echo = requestGetBySyn(actionUrl, encrypt, paramsMap, Json);
                 break;
+
             case TYPE_POST_JSON:
-                requestPostBySyn(actionUrl, paramsMap);
+                Echo = requestPostJsonBySyn(actionUrl, encrypt, paramsMap, Json);
                 break;
+
+            case TYPE_POST_PARAM_JSON:
+                Echo = requestPostBySyn(actionUrl, encrypt, paramsMap);
+                break;
+
             case TYPE_POST_FORM:
-                requestPostBySynWithForm(actionUrl, paramsMap);
+                Echo = requestPostBySynWithForm(actionUrl, paramsMap);
                 break;
         }
+
+        return Echo;
     }
 
-    private <T> Call requestGetByAsyn(String actionUrl, int encrypt, HashMap<String, String> paramsMap, final ReqCallBack<T> callBack) {
+    private <T> Call requestGetByAsyn(String actionUrl, int encrypt, HashMap<String, String> paramsMap, String Json, final ReqCallBack<T> callBack) {
+        String requestUrl = null;
+        Request request = null;
         StringBuilder tempParams = new StringBuilder();
         try {
             int pos = 0;
-            for (String key : paramsMap.keySet()) {
-                if (pos > 0) {
-                    tempParams.append("&");
+            if(null != paramsMap){
+                for (String key : paramsMap.keySet()) {
+                    if (pos > 0) {
+                        tempParams.append("&");
+                    }
+                    tempParams.append(String.format("%s=%s", key, URLEncoder.encode(paramsMap.get(key), "utf-8")));
+                    pos++;
                 }
-                tempParams.append(String.format("%s=%s", key, URLEncoder.encode(paramsMap.get(key), "utf-8")));
-                pos++;
-            }
-            String requestUrl = null;
-            if(encrypt == 0){
-                requestUrl = String.format("%s?%s", actionUrl, tempParams.toString());
+
+                if(encrypt == 0){
+                    requestUrl = String.format("%s?%s", actionUrl, tempParams.toString());
+                }else{
+                    String ParamsEN = AESUtils.encode(tempParams.toString());
+                    requestUrl = String.format("%s?%s", actionUrl, ParamsEN);
+                }
+                request = addHeaders().url(requestUrl).build();
+                nlog.Info("requestGetByAsyn requestUrl ["+requestUrl+"]");
             }else{
-                String ParamsEN = AESUtils.encode(tempParams.toString());
-                requestUrl = String.format("%s?%s", actionUrl, ParamsEN);
+                requestUrl = String.format("%s", actionUrl);
+                nlog.Info("requestGetByAsyn requestUrl ["+requestUrl+"] Json.getBytes().toString() ["+Json.getBytes().toString()+"]");
+
+                RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, Json);
+                request = addHeaders().url(requestUrl).post(body).build();
             }
-            nlog.Info("requestGetByAsyn requestUrl ["+requestUrl+"]");
-            final Request request = addHeaders().url(requestUrl).build();
+
             final Call call = mOkHttpClient.newCall(request);
             call.enqueue(new Callback() {
                 @Override
@@ -347,7 +429,7 @@ public class HttpManager {
         Call call = null;
         switch (requestType) {
             case TYPE_GET:
-                call = requestGetByAsyn(actionUrl, encrypt, paramsMap, callBack);
+                call = requestGetByAsyn(actionUrl, encrypt, paramsMap, Json, callBack);
                 break;
 
             case TYPE_POST_JSON:

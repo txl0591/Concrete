@@ -13,8 +13,6 @@ import java.util.List;
 
 public class SJBHInfoList implements Serializable {
 
-    public final static String TABLE = "Y_tempSK";
-
     public boolean result;
     public String error;
     public int echo_code;

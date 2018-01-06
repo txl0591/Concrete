@@ -1,4 +1,4 @@
-package com.concrete.common;
+package com.concrete.net;
 
 import com.concrete.app.R;
 
@@ -20,6 +20,8 @@ public class HttpEcho {
     public final static int  ERROR_USERNAME = 10008;
     public final static int  ERROR_PASSWORD = 10009;
     public final static int  ERROR_QUERY = 10010;
+
+    public final static int ERROR_INSERT_DB = 20001;
 
     public final static int  ERROR_SERVER = 0xF0000;
 
@@ -67,6 +69,11 @@ public class HttpEcho {
             case  ERROR_SERVER:
                 mEchoStr = R.string.http_ERROR_SERVER;
                 break;
+
+            case ERROR_INSERT_DB:
+                mEchoStr = R.string.http_ERROR_INSERT_DB;
+                break;
+
             default:
                 mEchoStr = R.string.http_ERROR_DEFAULT;
                 break;

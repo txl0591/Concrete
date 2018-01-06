@@ -7,15 +7,13 @@ import java.util.ArrayList;
  */
 
 public class SJBHInfoOper {
-    public String Table;
     public String Cmd;
     public int index;
     public ArrayList<SJBHInfo> items;
 
-    public SJBHInfoOper(String Cmd, int Index,ArrayList<SJBHInfo> items){
+    public SJBHInfoOper(String Cmd, ArrayList<SJBHInfo> items){
         this.Cmd = Cmd;
-        this.index = Index;
+        this.index = items.size();
         this.items = items;
-        this.Table = SJBHInfoList.TABLE;
     }
 }

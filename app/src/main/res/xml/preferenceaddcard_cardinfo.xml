@@ -4,18 +4,21 @@
         android:key="CardInfo"
         android:title="@string/pref_title_card_info">
         <PreferenceScreen
+            android:id="@+id/card_number1"
             android:key="@string/key_pref_card_number1"
             android:title="@string/pref_card_number1"
             android:layout="@layout/preference_list_item_layout">
         </PreferenceScreen>
 
         <PreferenceScreen
+            android:id="@+id/card_number2"
             android:key="@string/key_pref_card_number2"
             android:title="@string/pref_card_number2"
             android:layout="@layout/preference_list_item_layout">
         </PreferenceScreen>
 
         <PreferenceScreen
+            android:id="@+id/card_number3"
             android:key="@string/key_pref_card_number3"
             android:title="@string/pref_card_number3"
             android:layout="@layout/preference_list_item_layout">

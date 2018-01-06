@@ -1,35 +1,18 @@
-package com.concrete.common;
+package com.concrete.net;
 
-import android.content.ContentProviderOperation;
-import android.content.Context;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.util.Log;
+import com.concrete.common.IntentDef;
+import com.concrete.common.nlog;
 
-import com.concrete.type.ChipInfoList;
-import com.concrete.type.JsonEcho;
-import com.google.gson.Gson;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.concrete.common.IntentDef.HttpState.*;
@@ -39,7 +22,7 @@ import static com.concrete.common.IntentDef.HttpState.*;
  * Created by Tangxl on 2017/6/10.
  */
 
-public class HttpUtil {
+public class HttpDownload {
 
     public static IntentDef.OnHttpReportListener mOnHttpReportListener = null;
     private static final MediaType MEDIA_OBJECT_STREAM = MediaType.parse("application/octet-stream");

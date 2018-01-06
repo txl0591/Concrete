@@ -6,7 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcManager;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
 import android.os.Bundle;
@@ -16,6 +20,8 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -70,10 +76,6 @@ public class Common {
     public static String toHexString(int i) {
 
         String hexString = Integer.toHexString(i);
-
-        if (hexString.length() % 2 == 1) {
-            hexString = "0" + hexString;
-        }
 
         return hexString.toUpperCase(Locale.US);
     }
@@ -318,7 +320,11 @@ public class Common {
     }
 
     public static String getInnerSDCardPath() {
-        return Environment.getExternalStorageDirectory().getPath();
+        File dbp = new File("/storage/emulated/legacy");
+        if(dbp.exists()){
+            return "/storage/emulated/legacy";
+        }
+        return Environment.getExternalStorageDirectory().getAbsolutePath();
     }
 
     public static List<String> getExtSDCardPath() {
@@ -345,24 +351,6 @@ public class Common {
         }
         return lResult;
     }
-
-//    public static void StartLogout(Context context,IntentDef.OnLogUserReportListener Listener){
-//
-//        new AlertDialog.Builder(context)
-//        .setTitle(context.getString(R.string.toast_hit_logout))
-//        .setMessage(context.getString(R.string.toast_hit_logout_info))
-//        .setPositiveButton(context.getString(R.string.hit_quit),  null)
-//        .setNegativeButton(R.string.hit_ok , new DialogInterfaceLogUser(Listener) {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                SysDBHelper.SetLoginInState(false);
-//                if(mOnLogUserReportListener != null){
-//                    mOnLogUserReportListener.OnLogUserReport(false);
-//                }
-//            }
-//        })
-//        .show();
-//    }
 
     static class DialogInterfaceLogUser implements DialogInterface.OnClickListener {
 
@@ -432,10 +420,90 @@ public class Common {
             macSerial = macSerial.replace("d", "D");
             macSerial = macSerial.replace("e", "E");
             mac = macSerial.replace("f", "F");
+
+            return mac;
         }
 
-        return mac;
+        return null;
+    }
 
+    public static boolean IsNfcOpen(Context context){
+        boolean bRet=false;
+        if(context == null)
+        {
+            return bRet;
+        }
+        NfcManager manager = (NfcManager) context.getSystemService(Context.NFC_SERVICE);
+        NfcAdapter adapter = manager.getDefaultAdapter();
+        if (adapter != null && adapter.isEnabled()) {
+            // adapter存在，能启用
+            bRet=true;
+        }
+        return bRet;
+    }
+
+    public static boolean ScaleBmp(String path,Bitmap bm){
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int newWidth = 640;
+        int newHeight = 480;
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix,
+                true);
+
+        if(null != newbm){
+            File f = new File(path);
+            if (f.exists()) {
+                f.delete();
+            }
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(f);
+                newbm.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.flush();
+                out.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public static ArrayList<Long> GetDIff(ArrayList<Long> List1, ArrayList<Long> List2){
+        ArrayList<Long> List3 = new ArrayList<Long>();
+        for (int j =  0; j < List1.size(); j++){
+            List3.add(j, List1.get(j));
+        }
+
+        List3.removeAll(List2);
+
+        return List3;
+    }
+
+    public static ArrayList<Long> GetSame(ArrayList<Long> List1, ArrayList<Long> List2){
+        boolean same = false;
+        ArrayList<Long> List3 = new ArrayList<Long>();
+        for (int j =  0; j < List1.size(); j++){
+            same = false;
+            for(int k = 0; k < List2.size(); k++){
+                if(List1.get(j) == List2.get(k)){
+                    same = true;
+                }
+            }
+
+            if(same){
+                List3.add(List3.size(),List1.get(j));
+            }
+        }
+        return List3;
     }
 
 }

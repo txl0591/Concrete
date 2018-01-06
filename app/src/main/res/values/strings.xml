@@ -3,8 +3,13 @@
     <string name="pref_menu_user">用户信息</string>
     <string name="pref_menu_oper">基本操作</string>
     <string name="pref_menu_readcard">读卡</string>
-    <string name="pref_menu_addcard">新增</string>
     <string name="pref_menu_recordcard">历史记录</string>
+
+    <string name="pref_menu_sg_oper">施工操作</string>
+    <string name="pref_menu_addcard">新增</string>
+    <string name="pref_menu_sy_oper">检测操作</string>
+    <string name="pref_menu_collect">收样</string>
+
     <string name="pref_menu_setting">设置</string>
 
     <!-- Read Card -->
@@ -31,6 +36,10 @@
     <string name="pref_card_zhz">荷载值</string>
     <string name="pref_card_kyqd">抗压强度</string>
     <string name="pref_card_sysj">试验时间</string>
+    <string name="pref_card_gcid">工程ID</string>
+    <string name="pref_card_syrq">收样日期</string>
+    <string name="pref_card_syjg">收样机构</string>
+
 
     <!-- add card -->
     <string name="pref_title_project_info">工程信息</string>
@@ -42,6 +51,18 @@
     <string name="pref_add_card_wtdw">委托单位</string>
     <string name="pref_card_card_sgdw">施工单位</string>
     <string name="pref_card_card_jldw">监理单位</string>
+
+    <string name="pref_choose_title">操作</string>
+    <string name="pref_choose_image">显示图片</string>
+    <string name="pref_choose_snap">拍照</string>
+    <string name="pref_choose_delete">删除</string>
+
+    <!-- Upload -->
+    <string name="pref_upload">上传</string>
+
+    <!-- Collect -->
+    <string name="history_sg">样品成型</string>
+    <string name="collect_titol">样品接收</string>
 
     <!-- System Info -->
     <string name="pref_title_sys_info">系统信息</string>
@@ -57,6 +78,7 @@
     <!-- Toast Info -->
     <string name="toast_hit_load_wait">加载中，请稍后.....</string>
     <string name="toast_hit_upload_wait">上传中，请稍后.....</string>
+    <string name="toast_hit_sync_wait">同步中，请稍后.....</string>
     <string name="toast_hit_new_version">当前已是最新版本!</string>
     <string name="toast_hit_net_error">网络异常！</string>
     <string name="toast_hit_sqlserver_error">服务器异常！</string>
@@ -70,10 +92,15 @@
     <string name="toast_hit_save_success">保存成功！</string>
     <string name="toast_hit_save_error">保存失败！</string>
     <string name="toast_hit_login_error">请先登录！</string>
-
+    <string name="toast_hit_same_id">已存在相同卡号</string>
+    <string name="toast_hit_nfc_close">是否打开NFC</string>
+    <string name="toast_hit_delete_card">是否删除该卡号</string>
+    <string name="toast_hit_delete_record">是否删除该记录</string>
+    <string name="toast_hit_upgrade_record">是否上传该记录</string>
+    <string name="toast_hit_upload">是否上传记录</string>
 
     <!-- Http Echo -->
-    <string name="http_SUCCESS">成功</string>
+    <string name="http_SUCCESS">操作成功</string>
     <string name="http_ERROR_COMMON">请求错误</string>
     <string name="http_ERROR_PARAM">请求参数错误</string>
     <string name="http_ERROR_FORMAT">请求格式错误</string>
@@ -86,49 +113,21 @@
     <string name="http_ERROR_PASSWORD">密码错误</string>
     <string name="http_ERROR_QUERY">未查询到该数据</string>
     <string name="http_ERROR_SERVER">服务器异常</string>
+    <string name="http_ERROR_INSERT_DB">数据已存在数据库中</string>
     <string name="http_ERROR_DEFAULT">未知错误</string>
 
     <!-- Other -->
-    <string-array name="YHFS" >
-        <item>标准养护</item>
-        <item>同条件拆模</item>
-        <item>同条件(600°C天)</item>
+    <string name="user_type">用户类型</string>
+    <string-array name="YHLX">
+        <item>管理员</item>
+        <item>施工人员</item>
+        <item>检测员</item>
+        <item>监督员</item>
     </string-array>
 
-    <string-array name="YPLX">
-        <item>标准养护检验试块</item>
-        <item>拆模检验试块</item>
-        <item>同条件检验试块</item>
-        <item>出厂检验标养试块</item>
-        <item>交货检验标养试块</item>
-    </string-array>
-
-    <string-array name="QDDJ" >
-        <item>C10</item>
-        <item>C15</item>
-        <item>C20</item>
-        <item>C25</item>
-        <item>C30</item>
-        <item>C35</item>
-        <item>C40</item>
-        <item>C45</item>
-        <item>C50</item>
-        <item>C55</item>
-        <item>C60</item>
-        <item>C65</item>
-        <item>C70</item>
-        <item>C75</item>
-        <item>C80</item>
-        <item>C85</item>
-        <item>C90</item>
-        <item>C95</item>
-        <item>C100</item>
-        <item>C105</item>
-        <item>C110</item>
-        <item>C115</item>
-        <item>C120</item>
-    </string-array>
-
+    <string name="hit_sure">注意</string>
     <string name="hit_ok">确定</string>
+    <string name="hit_edit">编辑</string>
     <string name="hit_cancle">取消</string>
+    <string name="hit_delete">删除</string>
 </resources>

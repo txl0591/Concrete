@@ -14,8 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.concrete.common.IntentDef;
-import com.concrete.fragment.FragmentBase;
-import com.concrete.fragment.LeftMenuFragment;
+import com.concrete.ctrl.FragmentBase;
+import com.concrete.ctrl.LeftMenuFragment;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 /**
@@ -68,7 +68,7 @@ public class SysInfoActivity extends Activity implements IntentDef.OnFragmentLis
     }
 
     @Override
-    public void OnFragmentReport(String Id) {
+    public void OnFragmentReport(int Id) {
 
     }
 
