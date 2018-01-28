@@ -2,6 +2,7 @@ package com.concrete.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,13 +12,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.HorizontalScrollView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.concrete.common.Common;
+import com.concrete.common.nlog;
 import com.concrete.ctrl.CommonBase;
 import com.concrete.ctrl.HistoryAdapter;
 import com.concrete.ctrl.HistoryItem;
@@ -31,12 +37,14 @@ import com.concrete.logic.CommonLoigic;
 import com.concrete.logic.SqliteLogic;
 import com.concrete.net.HttpBroadCast;
 import com.concrete.net.HttpDef;
+import com.concrete.net.HttpDownload;
 import com.concrete.net.HttpLogic;
 import com.concrete.type.ChipInfo;
 import com.concrete.type.SJBHInfo;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by Tangxl on 2017/12/17.
@@ -55,7 +63,6 @@ public class HistoryActivity extends Activity implements AdapterView.OnItemClick
     private HistoryAdapter mHistoryAdapter = null;
     private int mIndex = -1;
     private SqliteLogic mSqliteLogic = null;
-    private TextView TotilText = null;
     private ArrayList<HistoryInfo> mSJBHList = new ArrayList<HistoryInfo>();
     private HttpHandlerEvent mHttpHandlerEvent = null;
     private HttpBroadCast mHttpBroadCast = null;
@@ -71,11 +78,7 @@ public class HistoryActivity extends Activity implements AdapterView.OnItemClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_history);
-
-        TotilText = findViewById(R.id.TotilText);
-        TotilText.setText(R.string.history_sg);
 
         mListView = (ListCtrl)findViewById(R.id.BrowerCard);
         mListView.setOnItemClickListener(this);
@@ -92,20 +95,57 @@ public class HistoryActivity extends Activity implements AdapterView.OnItemClick
         mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
         mSlidingMenu.setMenu(R.layout.left_menu);
 
-        mCommonBase = new CommonBase(this);
-
         mLeftMenuFragment = new LeftMenuFragment(this,0);
         getFragmentManager().beginTransaction()
                 .add(R.id.left_menuconfig, mLeftMenuFragment)
                 .commit();
 
+
+        mCommonBase = new CommonBase(this);
         mSqliteLogic = new SqliteLogic(this);
 
         mHttpHandlerEvent = new HttpHandlerEvent(this);
         mHttpBroadCast = new HttpBroadCast(this,mHttpHandlerEvent);
         mHttpLogic = new HttpLogic(this);
         LoadTop();
-        LoadList();
+        LoadList(Common.getData());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        return true;
+    }
+
+    private DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            int mYear = year;
+            int mMonth = monthOfYear+1;
+            int mDay = dayOfMonth;
+            String Date = mYear+"-"+mMonth+"-"+mDay;
+            LoadList(Date);
+        }
+    };
+
+    private void ShowTimeChoose(){
+        Calendar ca = Calendar.getInstance();
+        int mYear = ca.get(Calendar.YEAR);
+        int mMonth = ca.get(Calendar.MONTH);
+        int mDay = ca.get(Calendar.DAY_OF_MONTH);
+        new DatePickerDialog(this, onDateSetListener, mYear, mMonth, mDay).show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_search:
+                ShowTimeChoose();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -176,7 +216,7 @@ public class HistoryActivity extends Activity implements AdapterView.OnItemClick
         mListTop.setAdapter(adapter);
     }
 
-    public void LoadList(){
+    public void LoadList(String Date){
         int TextId[] = { 0, 0, 0};
         String nString[] = {
                 null,//构件部位
@@ -197,7 +237,7 @@ public class HistoryActivity extends Activity implements AdapterView.OnItemClick
         if(!mSJBHList.isEmpty()){
             mSJBHList.clear();
         }
-        Cursor mCursor = mSqliteLogic.GetSJBHDBHelper().Query();
+        Cursor mCursor = mSqliteLogic.GetSJBHDBHelper().Query(Date);
         if(mCursor.getCount() > 0){
             while(mCursor.moveToNext()){
                 HistoryInfo mHistoryInfo =  new HistoryInfo(mCursor.getString(mCursor.getColumnIndex(SJBHDBHelper.TBL_SJBH)),
@@ -272,7 +312,8 @@ public class HistoryActivity extends Activity implements AdapterView.OnItemClick
         public void run() {
             super.run();
             mHttpHandlerEvent.sendEmptyMessage(HANDLER_SPIN_START);
-            CommonLoigic.SyncSJBHAndRFID(mSJBH,mSqliteLogic,mHttpLogic);
+            CommonLoigic.SyncGCProject(mContext,mSqliteLogic, mHttpLogic, mSJBH);
+            CommonLoigic.SyncRFIDFromSJBH(mContext,mSqliteLogic,mHttpLogic,mSJBH);
             mHttpHandlerEvent.sendEmptyMessage(HANDLER_SPIN_STOP);
             mHttpHandlerEvent.sendEmptyMessage(HANDLER_SHOW_DAILOG);
         }

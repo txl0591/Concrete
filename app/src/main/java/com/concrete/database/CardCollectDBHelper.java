@@ -37,6 +37,7 @@ public class CardCollectDBHelper extends SQLiteOpenHelper {
     public static final String TBL_LRSJ = "TBL_LRSJ";
     public static final String TBL_JCRY = "TBL_JCRY";
     public static final String TBL_JCRQ = "TBL_JCRQ";
+    public static final String TBL_ZZRQ = "TBL_ZZRQ";
 
     public static final String TBL_STATE = "TBL_STATE";
 
@@ -55,6 +56,7 @@ public class CardCollectDBHelper extends SQLiteOpenHelper {
             + TBL_LRSJ + " varchar(50),"
             + TBL_JCRY + " varchar(50),"
             + TBL_JCRQ + " varchar(50),"
+            + TBL_ZZRQ + " varchar(50),"
             + TBL_STATE + " INTEGER,"
             + TBL_UPLOAD_ECHO + " INTEGER,"
             + TBL_UPLOAD+" INTEGER)";
@@ -195,6 +197,8 @@ public class CardCollectDBHelper extends SQLiteOpenHelper {
         mContentValues.put(TBL_LRSJ, mChipInfo.TBL_LRSJ );
         mContentValues.put(TBL_JCRY, mChipInfo.TBL_JCRY );
         mContentValues.put(TBL_JCRQ, mChipInfo.TBL_JCRQ );
+        mContentValues.put(TBL_ZZRQ, Common.getData() );
+
         String selection = RFID+"=?";
         String[] selectionArgs = new String[]{mChipInfo.RFID};
         mSQLiteDatabase.update(TBL_NAME, mContentValues, selection, selectionArgs);
@@ -224,6 +228,7 @@ public class CardCollectDBHelper extends SQLiteOpenHelper {
             mContentValues.put(TBL_LRSJ, mChipInfo.TBL_LRSJ );
             mContentValues.put(TBL_JCRY, mChipInfo.TBL_JCRY );
             mContentValues.put(TBL_JCRQ, mChipInfo.TBL_JCRQ );
+            mContentValues.put(TBL_ZZRQ, Common.getData() );
             mContentValues.put(TBL_UPLOAD, false );
             mContentValues.put(TBL_STATE, State);
             mSQLiteDatabase.insert(TBL_NAME, null, mContentValues);
@@ -288,6 +293,16 @@ public class CardCollectDBHelper extends SQLiteOpenHelper {
             mSQLiteDatabase = getWritableDatabase();
         }
         Cursor c = mSQLiteDatabase.query(TBL_NAME, null, null, null, null, null, "TBL_SJBH DESC");
+        return c;
+    }
+
+    public Cursor QueryByOrder(String Date){
+        if(null == mSQLiteDatabase){
+            mSQLiteDatabase = getWritableDatabase();
+        }
+        String selection = TBL_ZZRQ+"=?";
+        String[] selectionArgs = new String[]{Date};
+        Cursor c = mSQLiteDatabase.query(TBL_NAME, null, selection, selectionArgs, null, null, "TBL_SJBH DESC");
         return c;
     }
 }

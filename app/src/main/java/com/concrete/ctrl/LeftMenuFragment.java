@@ -84,20 +84,16 @@ public class LeftMenuFragment extends FragmentBase implements IntentDef.OnLogUse
             mUserPreferenceScreen.setSummary(UserInfo.getInstance(mContext).GetUserName());
             switch(UserInfo.getInstance(mContext).GetUserType()){
                 case USERTYPE_ADMIN:
-                    nlog.Info("==========USERTYPE_ADMIN========");
                     getPreferenceScreen().addPreference(mCardAdd);
                     getPreferenceScreen().addPreference(mCardCollete);
                     break;
                 case USERTYPE_SG:
-                    nlog.Info("==========USERTYPE_SG========");
                     getPreferenceScreen().addPreference(mCardAdd);
                     break;
                 case USERTYPE_JC:
-                    nlog.Info("==========USERTYPE_JC========");
                     getPreferenceScreen().addPreference(mCardCollete);
                     break;
                 case USERTYPE_JD:
-                    nlog.Info("==========USERTYPE_JD========");
                     break;
             }
         }else {
@@ -134,6 +130,9 @@ public class LeftMenuFragment extends FragmentBase implements IntentDef.OnLogUse
 
     private void StartLogin(){
         Intent intent= new Intent(mContext, LoginActivity.class);
+        Bundle bundle=new Bundle();
+        bundle.putInt(LoginActivity.LOGIN_MODE,LoginActivity.LOGIN_MODE_IN);
+        intent.putExtras(bundle);
         startActivity(intent);
     }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_upload_button" android:icon="@mipmap/menu_upload" android:title="Upload" android:showAsAction="always|withText"/>
+    <item android:id="@+id/menu_upload_gcinfo"  android:title="@string/menu_upload_gcinfo" android:showAsAction="always|withText"/>
+    <item android:id="@+id/menu_upload_next"  android:title="@string/menu_upload_next" android:showAsAction="always|withText"/>
 </menu>

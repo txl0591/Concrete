@@ -30,13 +30,8 @@ public class HttpDownload {
     public static void DownloadFile(String urlStr, String fileName, String savePath, IntentDef.OnHttpReportListener Listener)
     {
         mOnHttpReportListener = Listener;
-        new DownloadThread(urlStr, fileName, savePath).start();
-    }
-
-    public static void UploadFile(String urlStr, String fileName, IntentDef.OnHttpReportListener Listener)
-    {
-        mOnHttpReportListener = Listener;
-        new UploadThread(urlStr, fileName).start();
+        nlog.Info("URL ["+urlStr+"] savePath ["+savePath+"] fileName ["+fileName+"]");
+        DownloadHttp(urlStr,savePath,fileName);
     }
 
     public static void HttpReport(int oper, long param1, long param2){
@@ -44,6 +39,14 @@ public class HttpDownload {
             mOnHttpReportListener.OnHttpDataReport(oper,param1,param2);
         }
         nlog.Info("Download ============= ["+oper+"] param1 ["+param1+"] param2 ["+param2+"]");
+    }
+
+    public static void DownloadFileThread(String urlStr, String fileName, String savePath, IntentDef.OnHttpReportListener Listener)
+    {
+        mOnHttpReportListener = Listener;
+        nlog.Info("URL ["+urlStr+"] savePath ["+savePath+"] fileName ["+fileName+"]");
+         new DownloadThread(urlStr,savePath,fileName).start();
+
     }
 
     static class DownloadThread extends Thread{
@@ -69,30 +72,15 @@ public class HttpDownload {
         }
     }
 
-    static class UploadThread extends Thread{
-
-        private String Url;
-        private String FileName;
-
-        public UploadThread(String urlStr, String fileName){
-            Url = urlStr;
-            FileName = fileName;
-        }
-
-        @Override
-        public void run() {
-            super.run();
-            File mFile = new File(FileName);
-            HttpUpload.uploadFile(mFile,Url);
-        }
-    }
-
     public static <T> void DownloadHttp(String fileUrl, String destFileDir, String fileName) {
         final File file = new File(destFileDir, fileName);
         if (file.exists()) {
             HttpReport(DOWNLOAD_SUCCESS,0,0);
             return;
         }
+
+        nlog.Info("fileUrl ======== ["+fileUrl+"]");
+
         OkHttpClient mOkHttpClient = new OkHttpClient();
         final Request request = new Request.Builder().url(fileUrl).build();
         final Call call = mOkHttpClient.newCall(request);
@@ -101,6 +89,7 @@ public class HttpDownload {
             public void onFailure(Call call, IOException e) {
                 //failedCallBack("下载失败", callBack);
                 HttpReport(DOWNLOAD_ERROR,0,0);
+                nlog.Info("onFailure======================");
             }
 
             @Override
@@ -124,6 +113,7 @@ public class HttpDownload {
                     HttpReport(DOWNLOAD_SUCCESS,0,0);
                 } catch (IOException e) {
                     HttpReport(DOWNLOAD_ERROR,0,0);
+                    nlog.Info("onResponse=========Eror=============");
                 } finally {
                     try {
                         if (is != null) {

@@ -20,8 +20,9 @@ public class UserInfo {
     private Context mContext = null;
     private static String UserName = "XXXX";
     private static String Passwd = "XXXX";
-    private static UserType mUserType = new UserType(UserType.USERTYPE_ADMIN,"");
+    private static UserType mUserType = new UserType(UserType.USERTYPE_SG,"");
     private static ArrayList<PrjectInfo> PrjectInfoList = new ArrayList<PrjectInfo>();
+    private static ArrayList<JzrInfo> mJzrInfoList =  new ArrayList<JzrInfo>();
     private static boolean mLoginState = false;
 
     public UserInfo(Context context){
@@ -61,7 +62,19 @@ public class UserInfo {
         return mtype[this.mUserType.TBL_USERTYPE];
     }
 
+    public void SetmJzrInfoList(ArrayList<JzrInfo> item){
+        if(!this.mJzrInfoList.isEmpty()){
+            this.mJzrInfoList.clear();
+        }
 
+        for(int i = 0; i < item.size(); i++){
+            this.mJzrInfoList.add(i,item.get(i));
+        }
+    }
+
+    public ArrayList<JzrInfo> GetmJzrInfoList(){
+        return this.mJzrInfoList;
+    }
 
     public void SetPrjectInfoList(ArrayList<PrjectInfo> item){
         if(!this.PrjectInfoList.isEmpty()){
@@ -119,6 +132,11 @@ public class UserInfo {
             }
         }
         return inst;
+    }
+
+    public void SetUserInfo(String Name, String Passwd){
+        this.UserName = Name;
+        this.Passwd = Passwd;
     }
 
     public void SetUserInfo(String Name, String Passwd, int Usertype, String UserDw){

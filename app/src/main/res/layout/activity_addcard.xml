@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
 xmlns:android="http://schemas.android.com/apk/res/android">
-    <RelativeLayout android:layout_width="fill_parent" android:layout_height="48.0dip">
-        <TextView android:text="@string/app_name" android:layout_centerInParent="true" style="@style/style_text_title_bar" />
-        <ImageButton
-            android:id="@+id/Upload_Button"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/menu_upload"
-            android:layout_alignParentRight="true"/>
-    </RelativeLayout>
-    <View style="@style/style_divider" />
     <RelativeLayout
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"

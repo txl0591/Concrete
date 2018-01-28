@@ -46,12 +46,6 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="@string/key_pref_card_jzdw"
-            android:title="@string/pref_card_jzdw"
-            android:layout="@layout/preference_list_item_layout">
-        </PreferenceScreen>
-
-        <PreferenceScreen
             android:key="@string/key_pref_card_jzr"
             android:title="@string/pref_card_jzr"
             android:layout="@layout/preference_list_item_layout">

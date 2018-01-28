@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <RelativeLayout android:layout_width="fill_parent" android:layout_height="48.0dip">
-        <TextView android:id="@+id/TotilText" android:text="@string/app_name" android:layout_centerInParent="true" style="@style/style_text_title_bar" />
-    </RelativeLayout>
-    <View style="@style/style_divider" />
     <RelativeLayout
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"

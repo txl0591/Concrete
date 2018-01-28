@@ -178,7 +178,6 @@ public class CardDBHelper extends SQLiteOpenHelper {
             return false;
         }
         ContentValues mContentValues = new ContentValues();
-        mContentValues.put(TBL_SJBH, mChipInfo.TBL_SJBH);
         mContentValues.put(SKs_UUid, mChipInfo.SKs_UUid);
         mContentValues.put(RFID, mChipInfo.RFID);
         mContentValues.put(SerialNo, mChipInfo.SerialNo );
@@ -189,8 +188,8 @@ public class CardDBHelper extends SQLiteOpenHelper {
         mContentValues.put(TBL_LRSJ, mChipInfo.TBL_LRSJ );
         mContentValues.put(TBL_JCRY, mChipInfo.TBL_JCRY );
         mContentValues.put(TBL_JCRQ, mChipInfo.TBL_JCRQ );
-        String selection = RFID+"=?";
-        String[] selectionArgs = new String[]{mChipInfo.RFID};
+        String selection = TBL_SJBH+"=?"+" and "+ RFID+"=?";
+        String[] selectionArgs = new String[]{mChipInfo.TBL_SJBH,mChipInfo.RFID};
         mSQLiteDatabase.update(TBL_NAME, mContentValues, selection, selectionArgs);
         return true;
     }
@@ -279,12 +278,12 @@ public class CardDBHelper extends SQLiteOpenHelper {
         return mSQLiteDatabase.delete(TBL_NAME, selection, selectionArgs);
     }
 
-    public int DeleteRFID(String rfid){
+    public int DeleteRFID(String rfid,String SJBH){
         if(null == mSQLiteDatabase){
             mSQLiteDatabase = getWritableDatabase();
         }
-        String selection = RFID+"=?";
-        String[] selectionArgs = new String[]{rfid};
+        String selection = TBL_SJBH+"=?"+" and "+ RFID+"=?";
+        String[] selectionArgs = new String[]{SJBH,rfid};
         return mSQLiteDatabase.delete(TBL_NAME, selection, selectionArgs);
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.concrete.common.Common;
+import com.concrete.common.nlog;
 import com.concrete.type.UserType;
 
 import java.text.SimpleDateFormat;
@@ -17,6 +18,7 @@ public class SysParam {
     public static final String CORESOFT_PARAM = "CORESOFT_PARAM";
 
     public static final String CORESOFT_USERNAME = "CORESOFT_USERNAME";
+    public static final String CORESOFT_USERPASSWD = "CORESOFT_USERPASSWD";
     public static final String CORESOFT_USERTYPE = "CORESOFT_USERTYPE";
     public static final String CORESOFT_SCDATE = "CORESOFT_SCDATE";
     public static final String CORESOFT_SCINDEX = "CORESOFT_SCINDEX";
@@ -47,18 +49,27 @@ public class SysParam {
         String value = read.getString(CORESOFT_USERNAME, "txl0591");
         return value;
     }
-
-    public int GetUserType(){
-        SharedPreferences read = mContext.getSharedPreferences(CORESOFT_PARAM, Context.MODE_PRIVATE);
-        return read.getInt(CORESOFT_USERTYPE, UserType.USERTYPE_ADMIN);
-    }
-
-    public void SetUserInfo(String Username, int Type){
+    public void SetUserName(String Username){
         SharedPreferences mSharedPreferences = mContext.getSharedPreferences(CORESOFT_PARAM, Context.MODE_PRIVATE);
         SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-        mEditor.putInt(CORESOFT_USERTYPE,Type);
         mEditor.putString(CORESOFT_USERNAME,Username);
         mEditor.commit();
+    }
+
+    public String GetUserPasswd(){
+        SharedPreferences read = mContext.getSharedPreferences(CORESOFT_PARAM, Context.MODE_PRIVATE);
+        String value = read.getString(CORESOFT_USERPASSWD, "");
+        return value;
+    }
+    public void SetUserPasswd(String Passwd){
+        SharedPreferences mSharedPreferences = mContext.getSharedPreferences(CORESOFT_PARAM, Context.MODE_PRIVATE);
+        SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+        mEditor.putString(CORESOFT_USERPASSWD,Passwd);
+        mEditor.commit();
+    }
+
+    public int GetUserType(){
+        return UserType.USERTYPE_SG;
     }
 
     public void SetSGDate(){

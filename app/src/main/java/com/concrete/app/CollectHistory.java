@@ -2,18 +2,23 @@ package com.concrete.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.concrete.common.Common;
 import com.concrete.ctrl.CommonBase;
 import com.concrete.ctrl.HistoryAdapter;
 import com.concrete.ctrl.HistoryItem;
@@ -30,6 +35,7 @@ import com.concrete.type.SJBHInfo;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by Tangxl on 2017/12/31.
@@ -48,7 +54,6 @@ public class CollectHistory extends Activity implements AdapterView.OnItemClickL
     private HistoryAdapter mHistoryAdapter = null;
     private SqliteLogic mSqliteLogic = null;
     private ArrayList<HistoryInfo> mSJBH = null;
-    private TextView TotilText = null;
     private CommonBase mCommonBase = null;
     private HandlerEvent mHandlerEvent = null;
     private HistoryActivity.HttpHandlerEvent mHttpHandlerEvent = null;
@@ -64,11 +69,7 @@ public class CollectHistory extends Activity implements AdapterView.OnItemClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_history);
-
-        TotilText = findViewById(R.id.TotilText);
-        TotilText.setText(R.string.collect_titol);
 
         mCommonBase = new CommonBase(this);
 
@@ -96,8 +97,46 @@ public class CollectHistory extends Activity implements AdapterView.OnItemClickL
         mHttpLogic = new HttpLogic(this);
         mSJBH = new ArrayList<HistoryInfo>();
         LoadTop();
-        LoadData();
+        LoadData(Common.getData());
         loadlist();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        return true;
+    }
+
+    private DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            int mYear = year;
+            int mMonth = monthOfYear+1;
+            int mDay = dayOfMonth;
+            String Date = mYear+"-"+mMonth+"-"+mDay;
+            LoadData(Date);
+            loadlist();
+        }
+    };
+
+    private void ShowTimeChoose(){
+        Calendar ca = Calendar.getInstance();
+        int mYear = ca.get(Calendar.YEAR);
+        int mMonth = ca.get(Calendar.MONTH);
+        int mDay = ca.get(Calendar.DAY_OF_MONTH);
+        new DatePickerDialog(this, onDateSetListener, mYear, mMonth, mDay).show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_search:
+                ShowTimeChoose();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -159,19 +198,22 @@ public class CollectHistory extends Activity implements AdapterView.OnItemClickL
         mListTop.setAdapter(adapter);
     }
 
-    public void LoadData(){
+    public void LoadData(String Date){
         if(!mSJBH.isEmpty()){
             mSJBH.clear();
         }
-        Cursor mCursor = mSqliteLogic.QueryByOrder();
+        Cursor mCursor = mSqliteLogic.QueryByOrder(Date);
         if(mCursor.getCount() > 0){
             while(mCursor.moveToNext()){
                 String SJBH = mCursor.getString(mCursor.getColumnIndex(CardCollectDBHelper.TBL_SJBH));
                 if(!isInSJBH(SJBH)){
                     SJBHInfo mSJBHInfo = mSqliteLogic.QuerySJBH(SJBH);
-                    HistoryInfo mHistoryInfo = new HistoryInfo(SJBH,
-                            mSJBHInfo.TBL_QDDJ, mSJBHInfo.TBL_ZZRQ, mSJBHInfo.TBL_GCMC);
-                    mSJBH.add(mSJBH.size(),mHistoryInfo);
+                    if(mSJBHInfo != null){
+                        HistoryInfo mHistoryInfo = new HistoryInfo(SJBH,
+                                mSJBHInfo.TBL_QDDJ, mSJBHInfo.TBL_ZZRQ, mSJBHInfo.TBL_GCMC);
+                        mSJBH.add(mSJBH.size(),mHistoryInfo);
+                    }
+
                 }
             }
         }
@@ -231,7 +273,8 @@ public class CollectHistory extends Activity implements AdapterView.OnItemClickL
         public void run() {
             super.run();
             mHandlerEvent.sendEmptyMessage(HANDLER_SPIN_START);
-            CommonLoigic.SyncSJBHAndRFID(mSJBHActive,mSqliteLogic,mHttpLogic);
+            CommonLoigic.SyncGCProject(mContext,mSqliteLogic, mHttpLogic, mSJBHActive);
+            CommonLoigic.SyncRFIDFromSJBH(mContext,mSqliteLogic,mHttpLogic,mSJBHActive);
             mHandlerEvent.sendEmptyMessage(HANDLER_SPIN_STOP);
             mHandlerEvent.sendEmptyMessage(HANDLER_SHOW_DAILOG);
         }

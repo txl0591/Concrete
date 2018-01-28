@@ -22,11 +22,8 @@ public class PrjectInfo implements Serializable {
     public String consCorp_id;
     public String superCorp_id;
     public String corpcode;
-//    public Timestamp createDate;
-//    public Timestamp updatetime;
     public String createDate;
     public String updatetime;
-
     public String district_id;
     public String safety_id;
     public String gongchengmianji;

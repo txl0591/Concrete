@@ -1,17 +1,21 @@
 package com.concrete.ctrl;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.Toast;
 
 import com.concrete.app.R;
 import com.concrete.logic.SqliteLogic;
+import com.concrete.net.HttpEcho;
 import com.concrete.net.HttpLogic;
 import com.concrete.type.ChipInfo;
 import com.concrete.type.SJBHInfo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by Tangxl on 2018/1/2.
@@ -235,5 +239,20 @@ public class CommonBase {
         }
     }
 
+    public void ChooseDateDialog(DatePickerDialog.OnDateSetListener listener){
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        new DatePickerDialog(mContext, 0,listener,year,month,day).show();
+    }
 
+    public void Toast(int Id, String str){
+        if(0 != Id){
+            Toast.makeText(mContext, Id,Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(mContext, str,Toast.LENGTH_SHORT).show();
+        }
+
+    }
 }

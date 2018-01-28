@@ -162,6 +162,14 @@ public class SJBHDBHelper extends SQLiteOpenHelper {
         return c;
     }
 
+    public Cursor Query(String Date){
+        mSQLiteDatabase = getWritableDatabase();
+        String selection = TBL_ZZRQ+"=?";
+        String[] selectionArgs = new String[]{Date};
+        Cursor c = mSQLiteDatabase.query(TBL_NAME, null, selection, selectionArgs, null, null, null);
+        return c;
+    }
+
     public void UpdateState(String SJBH,byte State){
         mSQLiteDatabase = getWritableDatabase();
         ContentValues mContentValues = new ContentValues();
@@ -221,7 +229,7 @@ public class SJBHDBHelper extends SQLiteOpenHelper {
         return mSQLiteDatabase.delete(TBL_NAME, selection, selectionArgs);
     }
 
-    public boolean Sync(SJBHInfo mSJBHInfo){
+    public boolean Update(SJBHInfo mSJBHInfo){
 
         mSQLiteDatabase = getWritableDatabase();
         if(mSQLiteDatabase == null){

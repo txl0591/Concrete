@@ -183,9 +183,9 @@ public class CollectActivity extends Activity implements AdapterView.OnItemClick
             for(int i = mRFIDList.size(); i > 0 ; i--){
                 if(mRFIDList.get(i-1).State == 1 && mRFIDList.get(i-1).Upload == 0)
                 {
-                    ImageId = R.drawable.upload;
-                }else{
                     ImageId = 0;
+                }else{
+                    ImageId = R.drawable.upload;
                 }
 
                 HistoryItem mHistoryItem = new HistoryItem(ImageId,getResources().getString(R.string.pref_card_card)+": "+mRFIDList.get(i-1).RFID);
@@ -195,33 +195,6 @@ public class CollectActivity extends Activity implements AdapterView.OnItemClick
         mHistoryAdapter.UpdateListData(ColletList,mHistoryItemList,force);
 
     }
-
-    private void LoadData(){
-        if(!mRFIDList.isEmpty()){
-            mRFIDList.clear();
-        }
-
-        Cursor mCursor = mSqliteLogic.GetCollectCardDBHelper().Query();
-        int index = 0;
-        int State = 0;
-
-        if(mCursor.getCount() > 0){
-            while(mCursor.moveToNext()){
-                State = mCursor.getInt(mCursor.getColumnIndex(CardDBHelper.TBL_STATE));
-                if(State > 0){
-                    RFIDInfo nRFIDInfo = new RFIDInfo(
-                            mCursor.getString(mCursor.getColumnIndex(CardCollectDBHelper.RFID)),
-                            mCursor.getInt(mCursor.getColumnIndex(CardCollectDBHelper.TBL_UPLOAD)),
-                             mCursor.getInt(mCursor.getColumnIndex(CardCollectDBHelper.TBL_STATE)),
-                            mCursor.getInt(mCursor.getColumnIndex(CardCollectDBHelper.TBL_UPLOAD_ECHO)));
-                    mRFIDList.add(index++, nRFIDInfo);
-                }
-
-            }
-        }
-    }
-
-
 
     @Override
     protected void onResume() {
@@ -261,14 +234,29 @@ public class CollectActivity extends Activity implements AdapterView.OnItemClick
         }
     }
 
+    public boolean IsSameCard(String Card){
+        boolean ret = false;
+        if(mRFIDList.size() > 0){
+            for (int i = 0; i < mRFIDList.size(); i++){
+                String Id = mRFIDList.get(i).RFID;
+                if(Id.equals(Card)){
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+
     private void AddCard(String Id){
         BigTextView.setText(Id);
-        int ret = mSqliteLogic.CollectChipInfo(Id);
-        if(ret > 0){
+        if(!IsSameCard(Id)){
             RFIDInfo mRFIDInfo = new RFIDInfo(Id, 0, 1, 0);
             mRFIDList.add(mRFIDList.size(),mRFIDInfo);
             UpdateList(true);
-        }else if(ret == 0){
+        }
+        else
+        {
             Toast.makeText(this,getResources().getText(R.string.toast_hit_same_id),Toast.LENGTH_SHORT).show();
         }
     }
@@ -359,7 +347,6 @@ public class CollectActivity extends Activity implements AdapterView.OnItemClick
                     break;
 
                 case HANDLER_INIT_UI:
-                    LoadData();
                     LoadList();
                     break;
 
@@ -393,8 +380,6 @@ public class CollectActivity extends Activity implements AdapterView.OnItemClick
     }
 
     class UploadTHread extends Thread{
-
-        public boolean UploadTHreadRun = true;
         public Context mContext = null;
 
         public UploadTHread(Context context){
@@ -407,36 +392,20 @@ public class CollectActivity extends Activity implements AdapterView.OnItemClick
             mHandlerEvent.sendEmptyMessage(HANDLER_DAILOG_SHOW);
             for(int i = 0; i < mRFIDList.size(); i++){
                 RFIDInfo nRFIDInfo = mRFIDList.get(i);
-                ChipInfo mChipInfo = mHttpLogic.QueryRFIDBlock(nRFIDInfo.RFID);
-                if(null != mChipInfo){
-                    mChipInfo.TBL_SYJG = UserInfo.getInstance(mContext).GetUserDanWei();
-                    mChipInfo.TBL_SYRQ = Common.getData();
-                    mSqliteLogic.UpdateCollectRFID(mChipInfo);
 
-                    ArrayList<ChipInfo> item = new ArrayList<ChipInfo>();
-                    item.add(0,mChipInfo);
-                    if(mHttpLogic.OperRFIDBlock(HANDLE_HTTP_UPDATE_RFID,item,UserInfo.getInstance(mContext).GetUserInfo())){
-                        nRFIDInfo.Upload = 1;
-                        nRFIDInfo.Echo = 0;
-                        mRFIDList.set(i,nRFIDInfo);
-                        mSqliteLogic.UpdateCollectState(nRFIDInfo.RFID,1, 0, 1);
-                        CommonLoigic.UpdateSYRQInSJBHTable(mContext,mChipInfo.TBL_SJBH, mSqliteLogic, mHttpLogic,mChipInfo.TBL_SYRQ,mChipInfo.TBL_SYJG);
-                    }
-                    else
-                    {
-                        nRFIDInfo.Upload = 1;
-                        nRFIDInfo.Echo = 1;
-                        mRFIDList.set(i,nRFIDInfo);
-                        mSqliteLogic.UpdateCollectState(nRFIDInfo.RFID,1, 1, 0);
-                    }
+                ChipInfo mChipInfo = CommonLoigic.UpdateCollectRFIDSYInfo(mContext,mSqliteLogic, mHttpLogic, Long.decode(nRFIDInfo.RFID));
 
-
-
-                }else{
+                if(mChipInfo != null){
                     nRFIDInfo.Upload = 1;
+                    nRFIDInfo.State = 0;
                     nRFIDInfo.Echo = 1;
                     mRFIDList.set(i,nRFIDInfo);
-                    mSqliteLogic.UpdateCollectState(nRFIDInfo.RFID,1, 1, 0);
+                    mSqliteLogic.InsertCollectChipInfo(mChipInfo);
+                }else{
+                    nRFIDInfo.Upload = 0;
+                    nRFIDInfo.State = 1;
+                    nRFIDInfo.Echo = 1;
+                    mRFIDList.set(i,nRFIDInfo);
                 }
             }
                 mHandlerEvent.sendEmptyMessage(HANDLER_DAILOG_HIDE);

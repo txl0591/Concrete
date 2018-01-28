@@ -15,12 +15,15 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
 import com.concrete.common.CardManager;
 import com.concrete.common.Common;
+import com.concrete.ctrl.CommonBase;
+import com.concrete.logic.CommonLoigic;
 import com.concrete.net.HttpBroadCast;
 import com.concrete.net.HttpEcho;
 import com.concrete.common.IntentDef;
@@ -30,6 +33,7 @@ import com.concrete.ctrl.LeftMenuFragment;
 import com.concrete.net.HttpLogic;
 import com.concrete.type.ChipInfo;
 import com.concrete.type.ChipInfoList;
+import com.concrete.type.ImageInfo;
 import com.concrete.type.SJBHInfo;
 import com.concrete.type.SJBHInfoList;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -47,6 +51,12 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
 
     private final static int HANDLER_READCARD_ONlY = 0xF1F1;
     private final static int HANDLER_READCARD_NET = 0xF1F2;
+    private static final int HANDLER_DAILOG_SHOW = 0xF1F3;
+    private static final int HANDLER_DAILOG_HIDE = 0xF1F4;
+    private static final int HANDLER_FLASH_LIST = 0xF1F5;
+    private static final int HANDLER_CLEAR = 0xF1F6;
+    private static final int HANDLER_QUIT = 0xF1F7;
+    private static final int HANDLER_LOADIMAGE = 0xF1F8;
 
     private SlidingMenu mSlidingMenu = null;
     private LeftMenuFragment mLeftMenuFragment = null;
@@ -55,13 +65,12 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
     private PendingIntent mPendingIntent = null;
     private long mCardNum = 0;
     private HandlerEvent mHandlerEvent = null;
-    private HttpHandlerEvent mHttpHandlerEvent = null;
-    private ProgressDialog mProgressDialog = null;
-    private HttpLogic mLogic = null;
-    private SJBHInfoList mSJBHInfoList = null;
-    private ChipInfoList mChipInfoList = null;
+    private HttpLogic mHttpLogic = null;
     private Context mContext = null;
     private HttpBroadCast mHttpBroadCast = null;
+    private CommonBase mCommonBase = null;
+    private boolean mIsExit;
+    private ArrayList<ImageInfo> mImageList = null;
     private final int mReadCardInfo[] =
     {
             R.string.key_pref_title_card_info,
@@ -71,7 +80,6 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
             R.string.key_pref_card_wtdw,
             R.string.key_pref_card_sgdw,
             R.string.key_pref_card_gjbw,
-            R.string.key_pref_card_jzdw,
             R.string.key_pref_card_jzdw,
             R.string.key_pref_card_jzr,
             R.string.key_pref_card_jzbh,
@@ -117,18 +125,20 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
                     .add(R.id.left_menuconfig, mLeftMenuFragment)
                     .commit();
         }
-        mLogic = new HttpLogic(this);
+        mCommonBase = new CommonBase(this);
+        mHttpLogic = new HttpLogic(this);
         mHandlerEvent = new HandlerEvent(this);
-        mHttpHandlerEvent = new HttpHandlerEvent(this);
         InitNFCLocal();
-        mHttpBroadCast = new HttpBroadCast(this,mHttpHandlerEvent);
+        mHttpBroadCast = new HttpBroadCast(this,mHandlerEvent);
     }
 
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        mLogic.Close();
+        mHttpLogic.Close();
+        mHttpBroadCast.Close();
+        nlog.Info("ReadActivity=============================onDestroy");
     }
 
     @Override
@@ -195,12 +205,10 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
     protected void onNewIntent(Intent intent) {
         // TODO Auto-generated method stub
         super.onNewIntent(intent);
-        nlog.Info("=================intent.getAction() ["+intent.getAction()+"]");
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             String str = ByteArrayToHexString(tag.getId());
             mCardNum = Long.parseLong(str, 16);
-            nlog.Info("NFC==============================["+str+"] ["+String.valueOf(mCardNum)+"]");
             Message msg = new Message();
             msg.what = HANDLER_READCARD_NET;
             Bundle mBundle = new Bundle();
@@ -210,35 +218,50 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
         }
     }
 
-    public void ShowWaitDialog(){
-        if(mProgressDialog == null){
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            mProgressDialog.setIndeterminate(false);
-            mProgressDialog.setMessage(getText(R.string.toast_hit_load_wait));
-            mProgressDialog.setCancelable(false);
-        }
-        mProgressDialog.show();
-    }
-
-    public void HideWaitDialog()
-    {
-        if(null != mProgressDialog) {
-            mProgressDialog.cancel();
-            mProgressDialog.dismiss();
-            mProgressDialog = null;
-        }
-    }
-
     @Override
     public void OnFragmentReport(View view) {
 
     }
 
+    public void StartImageActivity(String UUID){
+        String Path = null;
+        Intent intent =new Intent(this,ImageDisplay.class);
+        Bundle bundle=new Bundle();
+        bundle.putLong("RFID", 0);
+        bundle.putString("UUID", UUID);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
     @Override
     public void OnFragmentReport(int Id) {
-        nlog.Info("OnFragmentReport==============["+Id+"]");
-        ShowFragmentInfo(Id);
+        if(Id == R.string.key_pref_card_sjbh){
+            new ReadImageThread().start();
+        }else{
+            ShowFragmentInfo(Id);
+        }
+
+    }
+
+    private void ShowImageList(){
+        if(mImageList != null && mImageList.size() > 0){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.pref_image_lsit);
+            String[] cities = new String[mImageList.size()];
+            for(int i = 0; i < mImageList.size(); i++){
+                cities[i] = mImageList.get(i).cIMG_UUID;
+            }
+            builder.setItems(cities, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    StartImageActivity(mImageList.get(which).cIMG_UUID);
+                }
+            });
+            builder.show();
+        }
+
     }
 
     public void ShowFragmentInfo(int Id){
@@ -307,7 +330,6 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
 
         public void UpDataRFIDFromInfoList(ArrayList<String> Value)
         {
-            nlog.Info("Update ============== ["+Value.size()+"] mPreferenceList.size() ["+mPreferenceList.size()+"]");
             ClearRFID();
             for(int i = 1; i < mPreferenceList.size(); i++)
             {
@@ -318,10 +340,9 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
             }
         }
 
-        public void UpDataRFIDFromSJBHInfoList(SJBHInfoList List){
+        public void UpDataRFIDFromSJBHInfoList(SJBHInfo mSJBHInfo){
             int index = 0;
             ArrayList<String> Value =  new ArrayList<String>();
-            SJBHInfo mSJBHInfo = List.items.get(0);
             Value.add(index++,mSJBHInfo.TBL_SJBH);
             Value.add(index++,String.valueOf(mCardNum));
             Value.add(index++,mSJBHInfo.TBL_GCMC);
@@ -380,8 +401,32 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
                     break;
 
                 case HANDLER_READCARD_NET:
-                    ShowWaitDialog();
-                    mLogic.QueryRFID(msg.getData().getString("RFID"));
+                    new SyncInfoThread(Long.decode(msg.getData().getString("RFID"))).start();
+                    break;
+
+                case HANDLER_DAILOG_SHOW :
+                    mCommonBase.ShowWaitDialog(R.string.toast_hit_load_wait);
+                    break;
+
+                case HANDLER_DAILOG_HIDE:
+                    mCommonBase.HideWaitDialog();
+                    break;
+
+                case HANDLER_FLASH_LIST: {
+                    SJBHInfo mSJBHInfo  = (SJBHInfo) msg.getData().getSerializable("PARAM");
+                    mReadCardInfoFragment.UpDataRFIDFromSJBHInfoList(mSJBHInfo);
+                    break;
+                }
+
+                case HANDLER_CLEAR:
+                    mReadCardInfoFragment.ClearRFID();
+                    break;
+
+                case HANDLER_QUIT:
+                    break;
+
+                case HANDLER_LOADIMAGE:
+                    ShowImageList();
                     break;
 
                 default:
@@ -390,49 +435,84 @@ public class ReadCardActivity extends Activity implements IntentDef.OnFragmentLi
         }
     }
 
-    class HttpHandlerEvent extends Handler{
-        private Context mContext;
+    class ReadImageThread extends Thread{
+        @Override
+        public void run() {
+            super.run();
+            mHandlerEvent.sendEmptyMessage(HANDLER_DAILOG_SHOW);
+            String mSJBH = mReadCardInfoFragment.GetPreference(R.string.key_pref_card_sjbh);
+            if(mImageList != null && mImageList.isEmpty()){
+                mImageList.clear();
+            }
+            mImageList = CommonLoigic.QueryImageFromSJBH(mContext,null,mHttpLogic,mSJBH);
+            mHandlerEvent.sendEmptyMessage(HANDLER_DAILOG_HIDE);
+            mHandlerEvent.sendEmptyMessage(HANDLER_LOADIMAGE);
+        }
+    }
 
-        public HttpHandlerEvent(Context context){
-            mContext = context;
+    class SyncInfoThread extends Thread{
+
+        private long mRFID ;
+
+        public SyncInfoThread(Long RFID){
+            mRFID = RFID;
         }
 
         @Override
-        public void handleMessage(Message msg) {
-            switch(msg.what){
-                case HANDLE_HTTP_QUERY_RFID:
-                    if(msg.arg1 == HttpEcho.SUCCESS){
-                        mChipInfoList = (ChipInfoList)msg.getData().getSerializable("HANDLE_HTTP_QUERY_RFID");
-                        mChipInfoList.PrintChipInfoList();
-                        ChipInfo mChipInfo = mChipInfoList.items.get(0);
-                        mLogic.QuerySJBH(mChipInfo.TBL_SJBH);
-                    }else{
-                        mHandlerEvent.sendEmptyMessage(HANDLER_READCARD_ONlY);
-                        HideWaitDialog();
-                        HttpToast(mContext,msg.arg1);
-                    }
-                    break;
+        public void run() {
+            super.run();
 
-                case HANDLE_HTTP_QUERY_SJBH:
-                    if(msg.arg1 == HttpEcho.SUCCESS){
-                        mSJBHInfoList = (SJBHInfoList)msg.getData().getSerializable("HANDLE_HTTP_QUERY_SJBH");
-                        mReadCardInfoFragment.UpDataRFIDFromSJBHInfoList(mSJBHInfoList);
-                        HideWaitDialog();
-                    }else{
-                        mHandlerEvent.sendEmptyMessage(HANDLER_READCARD_ONlY);
-                        HideWaitDialog();
-                        HttpToast(mContext,msg.arg1);
-                    }
-                    break;
-
-                default:
-                    break;
+            mHandlerEvent.sendEmptyMessage(HANDLER_CLEAR);
+            mHandlerEvent.sendEmptyMessage(HANDLER_DAILOG_SHOW);
+            mHandlerEvent.sendEmptyMessage(HANDLER_READCARD_ONlY);
+            ChipInfo mChipInfo = CommonLoigic.QueryLastRFID(mContext,null,mHttpLogic,mRFID);
+            if(mChipInfo != null){
+                SJBHInfo mSJBHInfo = CommonLoigic.QueryGCProject(mContext,null,mHttpLogic,mChipInfo.TBL_SJBH);
+                Message Msg = new Message();
+                Msg.what = HANDLER_FLASH_LIST;
+                Bundle mBundle = new Bundle();
+                mBundle.putSerializable("PARAM",mSJBHInfo);
+                Msg.setData(mBundle);
+                mHandlerEvent.sendMessage(Msg);
             }
+            mHandlerEvent.sendEmptyMessage(HANDLER_DAILOG_HIDE);
         }
     }
 
-    private void HttpToast(Context context,int Error){
-        Toast.makeText(context, HttpEcho.GetHttpEcho(Error),Toast.LENGTH_SHORT).show();
+    private void QuitOper(){
+        AlertDialog.Builder mAlertDialog = new AlertDialog.Builder(mContext);
+        mAlertDialog.setTitle(mContext.getResources().getString(R.string.toast_hit_quit));
+        mAlertDialog.setPositiveButton(mContext.getResources().getString(R.string.hit_ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mHandlerEvent.sendEmptyMessage(HANDLER_QUIT);
+            }
+        });
+        mAlertDialog.setNegativeButton(mContext.getResources().getString(R.string.hit_cancle), null);
+        mAlertDialog.show();
     }
 
+    private void Quit(){
+        this.finish();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)){
+            if (mIsExit) {
+                Quit();
+            } else {
+                Toast.makeText(this, R.string.toast_hit_quit, Toast.LENGTH_SHORT).show();
+                mIsExit = true;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mIsExit = false;
+                    }
+                }, 2000);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }

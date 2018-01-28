@@ -1,15 +1,22 @@
 package com.concrete.app;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 
 import com.concrete.common.IntentDef;
+import com.concrete.common.nlog;
 import com.concrete.ctrl.LeftMenuFragment;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 public class MainActivity extends Activity implements IntentDef.OnFragmentListener {
+
 
     private SlidingMenu mSlidingMenu = null;
     private LeftMenuFragment mLeftMenuFragment = null;
@@ -34,12 +41,18 @@ public class MainActivity extends Activity implements IntentDef.OnFragmentListen
                 .commit();
 
         mLeftMenuFragment.setOnFragmentListener(this);
+
         StartReadCard();
     }
 
     private void StartReadCard(){
         Intent intent= new Intent(this, ReadCardActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -51,6 +64,5 @@ public class MainActivity extends Activity implements IntentDef.OnFragmentListen
     public void OnFragmentReport(int Id) {
 
     }
-
 
 }

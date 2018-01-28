@@ -1,16 +1,17 @@
 <resources>
-    <string name="app_name">混凝土系统</string>
+    <string name="app_name">混凝土试块RFID系统</string>
     <string name="pref_menu_user">用户信息</string>
     <string name="pref_menu_oper">基本操作</string>
     <string name="pref_menu_readcard">读卡</string>
     <string name="pref_menu_recordcard">历史记录</string>
 
-    <string name="pref_menu_sg_oper">施工操作</string>
+    <string name="pref_menu_sg_oper">试件成型</string>
     <string name="pref_menu_addcard">新增</string>
-    <string name="pref_menu_sy_oper">检测操作</string>
+    <string name="pref_menu_sy_oper">收样操作</string>
     <string name="pref_menu_collect">收样</string>
-
     <string name="pref_menu_setting">设置</string>
+
+    <string name="pref_menu_register">注册</string>
 
     <!-- Read Card -->
     <string name="pref_title_card_info">卡片信息</string>
@@ -39,6 +40,8 @@
     <string name="pref_card_gcid">工程ID</string>
     <string name="pref_card_syrq">收样日期</string>
     <string name="pref_card_syjg">收样机构</string>
+
+    <string name="pref_image_lsit">图片列表</string>
 
 
     <!-- add card -->
@@ -70,9 +73,11 @@
     <string name="pref_sys_user">用户名</string>
     <string name="pref_sys_passwd">密码</string>
     <string name="pref_sys_usertype">用户类型</string>
+    <string name="pref_sys_userdw">用户单位</string>
     <string name="pref_sys_login">已登录</string>
     <string name="pref_sys_logout">未登录</string>
     <string name="pref_sys_login_oper">登录</string>
+    <string name="pref_sys_logout_regeister">注册</string>
     <string name="pref_sys_logout_oper">退出</string>
 
     <!-- Toast Info -->
@@ -86,6 +91,7 @@
     <string name="toast_hit_link_error">数据未更新！</string>
     <string name="toast_hit_upload_success">上传成功！</string>
     <string name="toast_hit_upload_error">上传失败！</string>
+    <string name="toast_hit_upload_not_empty">数据已存在！</string>
     <string name="toast_hit_upgrade_success">更新成功！</string>
     <string name="toast_hit_upgrade_error">更新失败！</string>
     <string name="toast_hit_liucheng_snap">功能暂未开通！</string>
@@ -98,6 +104,19 @@
     <string name="toast_hit_delete_record">是否删除该记录</string>
     <string name="toast_hit_upgrade_record">是否上传该记录</string>
     <string name="toast_hit_upload">是否上传记录</string>
+    <string name="toast_hit_login_wait">登录中,请稍后.....</string>
+    <string name="toast_hit_register_error_user">用户名密码不能为空</string>
+    <string name="toast_hit_register_success">注册成功</string>
+    <string name="toast_hit_register_error">注册失败</string>
+    <string name="toast_hit_gcinfo_empty">工程信息不能为空</string>
+    <string name="toast_hit_upgrade_gcinfo">是否上传工程信息</string>
+    <string name="toast_hit_upgrade_rfid">是否上传芯片信息</string>
+    <string name="toast_hit_gcinfo_needadd">请先添加工程信息</string>
+    <string name="toast_hit_gcinfo_save_error">请先上传当前工程信息</string>
+    <string name="toast_hit_delete_success">删除成功</string>
+    <string name="toast_hit_delete_fail">删除失败</string>
+    <string name="toast_hit_quit">再按一次退出</string>
+    <string name="toast_hit_login_fail">登陆失败</string>
 
     <!-- Http Echo -->
     <string name="http_SUCCESS">操作成功</string>
@@ -116,17 +135,31 @@
     <string name="http_ERROR_INSERT_DB">数据已存在数据库中</string>
     <string name="http_ERROR_DEFAULT">未知错误</string>
 
+    <!-- Menu -->
+    <string name="menu_upload_gcinfo">工程保存</string>
+    <string name="menu_upload_next">下一组</string>
+    <string name="menu_search">查询</string>
+
     <!-- Other -->
     <string name="user_type">用户类型</string>
     <string-array name="YHLX">
         <item>管理员</item>
-        <item>施工人员</item>
-        <item>检测员</item>
-        <item>监督员</item>
+        <item>施工现场</item>
+        <item>检测机构</item>
+        <item>监督机构</item>
+    </string-array>
+
+    <string name="user_regeister_type">用户类型</string>
+    <string-array name="YHLX_REG">
+        <item>施工现场</item>
+        <item>检测机构</item>
+        <item>监督机构</item>
     </string-array>
 
     <string name="hit_sure">注意</string>
     <string name="hit_ok">确定</string>
+    <string name="hit_quit">退出</string>
+    <string name="hit_find">查询</string>
     <string name="hit_edit">编辑</string>
     <string name="hit_cancle">取消</string>
     <string name="hit_delete">删除</string>

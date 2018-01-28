@@ -14,11 +14,21 @@ import com.concrete.type.ImageInfo;
 import com.concrete.type.ImageInfoList;
 import com.concrete.type.ImageInfoOper;
 import com.concrete.type.JsonEcho;
+import com.concrete.type.JzrInfo;
+import com.concrete.type.JzrInfoList;
+import com.concrete.type.JzrInfoOper;
+import com.concrete.type.PrjectInfo;
 import com.concrete.type.ProjectInfoList;
+import com.concrete.type.ProjectInfoOper;
 import com.concrete.type.SJBHInfo;
 import com.concrete.type.SJBHInfoList;
 import com.concrete.type.SJBHInfoOper;
+import com.concrete.type.UserClass;
 import com.concrete.type.UserEcho;
+import com.concrete.type.UserInfoOper;
+import com.concrete.type.UserProject;
+import com.concrete.type.UserProjectList;
+import com.concrete.type.UserProjectOper;
 import com.concrete.type.UserType;
 import com.google.gson.Gson;
 
@@ -230,6 +240,26 @@ public class HttpLogic {
         }).start();
     }
 
+    public void OperUserInfo(int Cmd, ArrayList<UserClass> item, HashMap<String, String> Param){
+        UserInfoOper mUserInfoOper = new UserInfoOper(Common.toHexString(Cmd),item);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mUserInfoOper);
+
+        String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
+        int mRequestType = GetRequestType(Cmd);
+
+        new HttpThread(Cmd,1,Param, Json, new HttpReqCallBack() {
+            @Override
+            public void onReqSuccess(int Cmd, Object result) {
+                Gson gson = new Gson();
+                JsonEcho mJsonEcho = gson.fromJson(String.valueOf(result), JsonEcho.class);
+                mJsonEcho.PrintJsonEcho();
+                nlog.Info("OperUserInfo ========= ["+Cmd+"] mJsonEcho.echo_code ["+mJsonEcho.echo_code+"]");
+                SendHttpBroadcast(Cmd,mJsonEcho.echo_code, null);
+            }
+        }).start();
+    }
+
     public void OperSJBHInfo(int Cmd, ArrayList<SJBHInfo> item, HashMap<String, String> Param){
         SJBHInfoOper mSJBHInfoOper = new SJBHInfoOper(Common.toHexString(Cmd),item);
         Gson gson = new Gson();
@@ -265,8 +295,9 @@ public class HttpLogic {
      * @param Number
      * @return
      */
-    public ChipInfo QueryRFIDBlock(String Number){
-        ChipInfo mChipInfo = null;
+
+    public ArrayList<ChipInfo> QueryRFIDIntent(String Number){
+        ArrayList<ChipInfo> mChipInfo = new ArrayList<ChipInfo>();
         HttpOper mHttpOper = new HttpOper(Common.toHexString(HANDLE_HTTP_QUERY_RFID),Number);
         Gson gson = new Gson();
         String Json =gson.toJson(mHttpOper);
@@ -278,24 +309,15 @@ public class HttpLogic {
             mJsonEcho.PrintJsonEcho();
             if(mJsonEcho.result){
                 ChipInfoList mChipInfoList = gson.fromJson(result, ChipInfoList.class);
-                mChipInfo = mChipInfoList.items.get(0);
+
+                for(int i = 0; i < mChipInfoList.items.size(); i++){
+                    mChipInfo.add(mChipInfo.size(),mChipInfoList.items.get(i));
+                }
             }
         }
         return mChipInfo;
     }
 
-    public ArrayList<ChipInfo> QueryRFIDListlock(ArrayList<String> RFID){
-        ArrayList<ChipInfo> mChipInfo = new ArrayList<ChipInfo>();
-
-        for(int i = 0; i < RFID.size(); i++){
-            ChipInfo chipInfo = QueryRFIDBlock(RFID.get(i));
-            if(null != chipInfo){
-                mChipInfo.add(mChipInfo.size(),chipInfo);
-            }
-        }
-
-        return mChipInfo;
-    }
 
     public ArrayList<ChipInfo> QueryRFIDFromSJBHlock(String SJBH){
         ArrayList<ChipInfo> mChipInfo = new ArrayList<ChipInfo>();
@@ -306,13 +328,16 @@ public class HttpLogic {
         int mRequestType = GetRequestType(HANDLE_HTTP_QUERY_RFID_FROM_SJBH);
 
         String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 0, null, Json);
+
+        nlog.Info("QueryRFIDFromSJBHlock========SJBH==["+SJBH+"] result ["+result+"]");
+
         if(result != null){
             JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
             mJsonEcho.PrintJsonEcho();
             if(mJsonEcho.result){
                 ChipInfoList mChipInfoList = gson.fromJson(result, ChipInfoList.class);
                 for(int i = 0; i < mChipInfoList.items.size(); i++){
-                    mChipInfo.add(i,mChipInfoList.items.get(i));
+                    mChipInfo.add(mChipInfo.size(),mChipInfoList.items.get(i));
                 }
             }
         }
@@ -320,20 +345,33 @@ public class HttpLogic {
         return mChipInfo;
     }
 
+    public ChipInfo QueryRFIDBlock(String SJBH, String RFID){
+        ChipInfo mChipInfo = null;
+        nlog.Info("QueryRFIDBlock================["+RFID+"]");
+        ArrayList<ChipInfo> mChipInfoList = QueryRFIDFromSJBHlock(SJBH);
+        for(int i = 0; i < mChipInfoList.size(); i++){
+            nlog.Info(" QueryRFIDBlock ["+mChipInfoList.get(i).RFID+"]");
+            if(RFID.equals(mChipInfoList.get(i).RFID)){
+                mChipInfo = mChipInfoList.get(i);
+                break;
+            }
+        }
+
+        return mChipInfo;
+    }
+
+    public ArrayList<ChipInfo> QueryRFIDBlock(String RFID){
+        return QueryRFIDIntent(RFID);
+    }
+
     public boolean OperRFIDBlock(int Cmd, ArrayList<ChipInfo> item, HashMap<String, String> Param){
         boolean ret = false;
         ChipInfoOper mChipInfoOper = new ChipInfoOper(Common.toHexString(Cmd),item);
         Gson gson = new Gson();
-        String Json =gson.toJson(mChipInfoOper);
+        String Json = gson.toJson(mChipInfoOper);
         String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
         int mRequestType = GetRequestType(Cmd);
-
-        nlog.Info("Json==============["+Json+"]");
-
         String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, Json);
-
-        nlog.Info("OperRFIDBlock result =============["+result+"]");
-
         if(result != null){
             JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
             mJsonEcho.PrintJsonEcho();
@@ -369,7 +407,6 @@ public class HttpLogic {
         SJBHInfoOper mSJBHInfoOper = new SJBHInfoOper(Common.toHexString(Cmd),item);
         Gson gson = new Gson();
         String Json =gson.toJson(mSJBHInfoOper);
-        nlog.Info("OperSJBHInfolock=========["+Json+"]");
         String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
         int mRequestType = GetRequestType(Cmd);
         String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, Json);
@@ -380,6 +417,193 @@ public class HttpLogic {
         }
 
         return ret;
+    }
+
+    public UserProjectList QueryUserPrjBlock(String UserName){
+        UserProjectList mUserProjectList = null;
+        HttpOper mHttpOper = new HttpOper(Common.toHexString(HANDLE_HTTP_QUREY_USERPRJ),UserName);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mHttpOper);
+
+        String mActionUrl = BASE_URL+GetHttpCmd(HANDLE_HTTP_QUREY_USERPRJ);
+        int mRequestType = GetRequestType(HANDLE_HTTP_QUREY_USERPRJ);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 0, null, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            mJsonEcho.PrintJsonEcho();
+            if(mJsonEcho.result){
+                mUserProjectList = gson.fromJson(result, UserProjectList.class);
+            }
+        }
+
+        return mUserProjectList;
+    }
+
+    public boolean OperUserPrjlock(int Cmd, ArrayList<UserProject> item, HashMap<String, String> Param){
+        boolean ret = false;
+        UserProjectOper mUserProjectOper = new UserProjectOper(Common.toHexString(Cmd),item);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mUserProjectOper);
+        String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
+        int mRequestType = GetRequestType(Cmd);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            mJsonEcho.PrintJsonEcho();
+            ret = mJsonEcho.result;
+        }
+
+        return ret;
+    }
+
+    public JzrInfoList QueryJzrInfoBlock(String JZDW){
+        JzrInfoList mJzrInfoList = null;
+        HttpOper mHttpOper = new HttpOper(Common.toHexString(HANDLE_HTTP_QUREY_JZRPRJ),JZDW);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mHttpOper);
+
+        String mActionUrl = BASE_URL+GetHttpCmd(HANDLE_HTTP_QUREY_JZRPRJ);
+        int mRequestType = GetRequestType(HANDLE_HTTP_QUREY_JZRPRJ);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 0, null, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            mJsonEcho.PrintJsonEcho();
+            if(mJsonEcho.result){
+                mJzrInfoList = gson.fromJson(result, JzrInfoList.class);
+            }
+        }
+
+        return mJzrInfoList;
+    }
+
+    public boolean OperJzrInfolock(int Cmd, ArrayList<JzrInfo> item, HashMap<String, String> Param){
+        boolean ret = false;
+        JzrInfoOper mJzrInfoOper = new JzrInfoOper(Common.toHexString(Cmd),item);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mJzrInfoOper);
+        String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
+        int mRequestType = GetRequestType(Cmd);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            mJsonEcho.PrintJsonEcho();
+            ret = mJsonEcho.result;
+        }
+
+        return ret;
+    }
+
+    public UserEcho LogOperlock(int Cmd, HashMap<String, String> Param){
+        UserEcho mUserEcho  = null;
+        Gson gson = new Gson();
+        String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
+        int mRequestType = GetRequestType(Cmd);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, null);
+        if(result != null){
+            mUserEcho = gson.fromJson(result, UserEcho.class);
+
+        }
+        if(null != mUserEcho && mUserEcho.result){
+            return mUserEcho;
+        }
+
+        return null;
+    }
+
+    public ProjectInfoList QueryGGInfolock(String GCMC){
+
+        ProjectInfoList mProjectInfoList = null;
+        HttpOper mHttpOper = new HttpOper(Common.toHexString(HANDLE_HTTP_QUREY_GCIDMH),GCMC);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mHttpOper);
+        String mActionUrl = BASE_URL+GetHttpCmd(HANDLE_HTTP_QUREY_GCIDMH);
+        int mRequestType = GetRequestType(HANDLE_HTTP_QUREY_GCIDMH);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 0, null, Json);
+
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            if(mJsonEcho.result) {
+                mJsonEcho.PrintJsonEcho();
+                mProjectInfoList = gson.fromJson(String.valueOf(result), ProjectInfoList.class);
+            }
+        }
+
+        return mProjectInfoList;
+    }
+
+    public boolean OperGCInfolock(int Cmd, ArrayList<PrjectInfo> item, HashMap<String, String> Param){
+        boolean ret = false;
+        ProjectInfoOper mProjectInfoOper = new ProjectInfoOper(Common.toHexString(Cmd),item);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mProjectInfoOper);
+        String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
+        int mRequestType = GetRequestType(Cmd);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            mJsonEcho.PrintJsonEcho();
+            ret = mJsonEcho.result;
+        }
+
+        return ret;
+    }
+
+    public boolean OperUserInfolock(int Cmd, ArrayList<UserClass> item, HashMap<String, String> Param){
+        boolean ret = false;
+        UserInfoOper mUserInfoOper = new UserInfoOper(Common.toHexString(Cmd),item);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mUserInfoOper);
+        String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
+        int mRequestType = GetRequestType(Cmd);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            mJsonEcho.PrintJsonEcho();
+            ret = mJsonEcho.result;
+        }
+
+        return ret;
+    }
+
+
+    public boolean OperImagelock(int Cmd, ArrayList<ImageInfo> item, HashMap<String, String> Param) {
+        boolean ret = false;
+        ImageInfoOper mImageInfoOper = new ImageInfoOper(Common.toHexString(Cmd),item);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mImageInfoOper);
+        nlog.Info("OperImagelock ======Json ["+Json+"]");
+        String mActionUrl = BASE_URL+GetHttpCmd(Cmd);
+        int mRequestType = GetRequestType(Cmd);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 1, Param, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            ret = mJsonEcho.result;
+        }
+
+        return ret;
+    }
+
+    public ImageInfo QueryImagelock(String uuid){
+        ImageInfoList mImageInfoList = null;
+        HttpOper mHttpOper = new HttpOper(Common.toHexString(HANDLE_HTTP_QUERY_IMAGE),uuid);
+        Gson gson = new Gson();
+        String Json =gson.toJson(mHttpOper);
+
+        String mActionUrl = BASE_URL+GetHttpCmd(HANDLE_HTTP_QUERY_IMAGE);
+        int mRequestType = GetRequestType(HANDLE_HTTP_QUERY_IMAGE);
+        String result = HttpUtil.getInstance(mContext).SendRequest(mActionUrl, mRequestType, 0, null, Json);
+        if(result != null){
+            JsonEcho mJsonEcho = gson.fromJson(result, JsonEcho.class);
+            mJsonEcho.PrintJsonEcho();
+            if(mJsonEcho.result) {
+                mImageInfoList = gson.fromJson(String.valueOf(result), ImageInfoList.class);
+            }
+        }
+        if(mImageInfoList != null && mImageInfoList.items != null && mImageInfoList.items.size() > 0){
+             return mImageInfoList.items.get(0);
+        }
+
+        return null;
     }
 
 }

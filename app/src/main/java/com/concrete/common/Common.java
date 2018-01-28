@@ -506,4 +506,13 @@ public class Common {
         return List3;
     }
 
+    public static boolean IsFileExit(String filename){
+        File mFile = new File(filename);
+        if(mFile.exists())
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
